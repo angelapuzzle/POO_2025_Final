@@ -7,8 +7,9 @@ import sqlite3
 
 class Participantes:
     # nombre de la base de datos  y ruta 
-    path = r'X:/Users/ferna/Documents/UNal/Alumnos/2024_S2/POO/Proy'
+    path = r'Resources'
     db_name = path + r'/Participantes.db'
+    program_icon = path + r'/ico_registro.ico'
     actualiza = None
     def __init__(self, master=None):
         # Top Level - Ventana Principal
@@ -18,8 +19,7 @@ class Participantes:
         #Top Level - Configuración
         self.win.configure(background="#d9f0f9", height="480", relief="flat", width="1024")
         self.win.geometry("1024x480")
-        self.path = self.path +r'/f2.ico'
-        self.win.iconbitmap(self.path)
+        self.win.iconbitmap(self.program_icon)
         self.win.resizable(False, False)
         self.win.title("Conferencia MACSS y la Ingenería de Requerimientos")
         self.win.pack_propagate(0) 
