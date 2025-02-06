@@ -177,12 +177,21 @@ class Participantes:
 
     def valida_Identificacion_Callback(self, var, index, mode):
         text = self.entryIdText.get()
-        if len(text) > 15:
+
+        #Crea una copia filtrada del texto para solo mantener los carácteres númericos
+        filtered_text = ""
+        for char in text:
+            if char in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}:
+                filtered_text += char
+
+        #Si el texto supera los 15 carácteres mostrar un mensaje
+        if len(filtered_text) > 15:
             #Pone el Entry directamente en blanco temporalmente, para ocultar errores gráficos
             self.entryId.delete(0, "end")
             mssg.showerror('Atención!!','.. ¡Máximo 15 caracteres! ..')
-            #Pone en la StringVar el texto recortado a los primeros 15 caracteres
-            self.entryIdText.set(text[0:15])
+
+        #Pone en la StringVar el texto filtrado recortado a los primeros 15 caracteres
+        self.entryIdText.set(filtered_text[0:15])
 
     def valida_Fecha(self, event=None):
       pass
