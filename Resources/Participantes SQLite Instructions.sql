@@ -7,12 +7,12 @@ CREATE TABLE t_ciudades(
 );
 
 CREATE TABLE t_participantes(
-    Id INTEGER PRIMARY KEY UNIQUE NOT NULL,
-    Nombre TEXT,
-    Direccion TEXT,
-    Celular INTEGER,
-    Entidad TEXT,
-    Fecha TEXT
+  Id BIGINT(15) PRIMARY KEY NOT NULL UNIQUE, 
+  Nombre VARCHAR(50), 
+  Direccion VARCHAR(50), 
+  Celular INTEGER(10), 
+  Entidad VARCHAR(50), 
+  Fecha DATE(10)
 );
 
 .mode csv
