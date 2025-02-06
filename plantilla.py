@@ -21,26 +21,29 @@ class Participantes:
         self.win.geometry("1024x480")
         self.win.iconbitmap(self.program_icon)
         self.win.resizable(False, False)
-        self.win.title("Conferencia MACSS y la Ingenería de Requerimientos")
+        self.win.title("Conferencia MACSS y la Ingeniería de Requerimientos")
         self.win.pack_propagate(0) 
         
         # Main widget
         self.mainwindow = self.win
         
         #Label Frame
-        self.lblfrm_Datos = tk.LabelFrame(self.win, width= 600, height= 200, labelanchor= "n", 
-                                          font= ("Helvetica", 13,"bold"))
+        self.lblfrm_Datos = tk.LabelFrame(self.win, width=600, height=200, labelanchor="n", font=("Helvetica",13,"bold"))
         #Label Id
         self.lblId = ttk.Label(self.lblfrm_Datos)
-        self.lblId.configure(anchor="e", font="TkTextFont", justify="left", text="Idenficación")
+        self.lblId.configure(anchor="e", font="TkTextFont", justify="left", text="Identificación")
         self.lblId.configure(width="12")
         self.lblId.grid(column="0", padx="5", pady="15", row="0", sticky="w")
         
+        ### En lugar de hacer un bind, se crea un StringVar el cual ejecute la función de validación al cambiar su contenido
+        ### y este StringVar se asocia con el Entry
+        self.entryIdText = tk.StringVar()
+        self.entryIdText.trace_add('write', self.valida_Identificacion_Callback)
         #Entry Id
-        self.entryId = tk.Entry(self.lblfrm_Datos)
-        self.entryId.configure(exportselection="false", justify="left",relief="groove", takefocus=True, width="30")
+        self.entryId = tk.Entry(self.lblfrm_Datos, textvariable=self.entryIdText)
+        self.entryId.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
         self.entryId.grid(column="1", row="0", sticky="w")
-        self.entryId.bind("<Key>", self.valida_Identificacion)
+        
         
         
         #Label Nombre
@@ -62,7 +65,7 @@ class Participantes:
         
         #Entry Direccion
         self.entryDireccion = tk.Entry(self.lblfrm_Datos)
-        self.entryDireccion.configure(exportselection="true", justify="left",relief="groove", width="30")
+        self.entryDireccion.configure(exportselection="true", justify="left", relief="groove", width="30")
         self.entryDireccion.grid(column="1", row="2", sticky="w")
         
         #Label Celular
@@ -73,7 +76,7 @@ class Participantes:
         
         #Entry Celular
         self.entryCelular = tk.Entry(self.lblfrm_Datos)
-        self.entryCelular.configure(exportselection="false", justify="left",relief="groove", width="30")
+        self.entryCelular.configure(exportselection="false", justify="left", relief="groove", width="30")
         self.entryCelular.grid(column="1", row="3", sticky="w")
         
         #Label Entidad
@@ -84,7 +87,7 @@ class Participantes:
         
         #Entry Entidad
         self.entryEntidad = tk.Entry(self.lblfrm_Datos)
-        self.entryEntidad.configure(exportselection="true", justify="left",relief="groove", width="30")
+        self.entryEntidad.configure(exportselection="true", justify="left", relief="groove", width="30")
         self.entryEntidad.grid(column="1", row="4", sticky="w")
         
         #Label Fecha
@@ -95,7 +98,7 @@ class Participantes:
         
         #Entry Fecha
         self.entryFecha = tk.Entry(self.lblfrm_Datos)
-        self.entryFecha.configure(exportselection="true", justify="left",relief="groove", width="30")
+        self.entryFecha.configure(exportselection="true", justify="left", relief="groove", width="30")
         self.entryFecha.grid(column="1", row="5", sticky="w")
         self.entryFecha.bind("<Key>", self.valida_Fecha)
         
@@ -172,14 +175,14 @@ class Participantes:
     def run(self):
         self.mainwindow.mainloop()
 
-    def valida_Identificacion(self, event=None):
-        ''' Valida que la longitud no sea mayor a 15 caracteres'''
-        if event.char:
-            if len(self.entryId.get()) >= 15:
-                mssg.showerror('Atención!!','.. ¡Máximo 15 caracteres! ..')
-                self.entryId.delete(15,"end")
-        else:
-              self.entryId.delete(15,"end")
+    def valida_Identificacion_Callback(self, var, index, mode):
+        text = self.entryIdText.get()
+        if len(text) > 15:
+            #Pone el Entry directamente en blanco temporalmente, para ocultar errores gráficos
+            self.entryId.delete(0, "end")
+            mssg.showerror('Atención!!','.. ¡Máximo 15 caracteres! ..')
+            #Pone en la StringVar el texto recortado a los primeros 15 caracteres
+            self.entryIdText.set(text[0:15])
 
     def valida_Fecha(self, event=None):
       pass
