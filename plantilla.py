@@ -128,13 +128,13 @@ class Participantes:
         
         #Botón Cancelar
         self.btnCancelar = ttk.Button(self.win)
-        self.btnCancelar.configure(text="Cancelar", width="9",command = self.limpia_Campos)
-        self.btnCancelar.place(anchor="nw", rely="0.75", x="225", y="0")
+        self.btnCancelar.configure(text='Cancelar', width='9',command = self.limpia_Campos)
+        self.btnCancelar.place(anchor='nw', rely='0.75', x='225', y='0')
         
         #tablaTreeView
         self.style=ttk.Style()
-        self.style.configure("estilo.Treeview", highlightthickness=0, bd=0, background='AliceBlue', font=('Calibri Light',10))
-        self.style.configure("estilo.Treeview.Heading", background='Azure', font=('Calibri Light', 10,'bold')) 
+        self.style.configure('estilo.Treeview', highlightthickness=0, bd=0, background='AliceBlue', font=('Calibri Light',10))
+        self.style.configure('estilo.Treeview.Heading', background='Azure', font=('Calibri Light', 10,'bold')) 
         self.style.layout("estilo.Treeview", [('estilo.Treeview.treearea', {'sticky': 'nswe'})])
 
         self.treeDatos = ttk.Treeview(self.win, height = 10, style="estilo.Treeview")
@@ -196,11 +196,13 @@ class Participantes:
     def valida_Fecha(self, event=None):
       pass
     
-
-    def carga_Datos(self):
+    '''Función utilizada para el boón editar, trae desde el treeview el participante seleccionado
+        y lo carga en los entry '''
+    def carga_Datos(self): 
         ''' Carga los datos en los campos desde el treeView'''
-        self.entryId.insert(0,self.treeDatos.item(self.treeDatos.selection())['text'])
-        self.entryId.configure(state = 'readonly')
+        self.entryId.insert(0,self.treeDatos.item(self.treeDatos.selection())['text']) #Carga id
+        self.entryId.configure(state = 'readonly') #Deja id bloqueado para que no lo puedan editar
+        #Carga los demás entrys
         self.entryNombre.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][0])
         self.entryDireccion.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][1])
         self.entryCelular.insert(0,self.treeDatos.item(self.treeDatos.selection())['values'][2])
@@ -235,13 +237,12 @@ class Participantes:
         if self.actualiza:
             self.actualiza = None
             self.entryId.configure(state = 'readonly')
-            query = 'UPDATE t_participantes SET Id = ?,Nombre = ?,Dirección = ?,Celular = ?, Entidad = ?, Fecha = ? WHERE Id = ?'
-            parametros = (self.entryId.get(), self.entryNombre.get(), self.entryDireccion.get(),
-                          self.entryCelular.get(), self.entryEntidad.get(), self.entryFecha.get()
-                          )
-                        #   self.entryId.get())
+            query = 'UPDATE t_participantes SET Nombre = ?, Direccion = ?, Celular = ?, Entidad = ?, Fecha = ? WHERE Id = ?'
+            parametros = (self.entryNombre.get(), self.entryDireccion.get(),
+                          self.entryCelular.get(), self.entryEntidad.get(), self.entryFecha.get(),
+                            self.entryId.get())
             self.run_Query(query, parametros)
-            mssg.showinfo('Ok',' Registro actualizado con éxito')
+            mssg.showinfo('Ok',f' Registro actualizado con éxito')
         else:
             query = 'INSERT INTO t_participantes VALUES(?, ?, ?, ?, ?, ?)'
             parametros = (self.entryId.get(),self.entryNombre.get(), self.entryDireccion.get(),
@@ -268,7 +269,13 @@ class Participantes:
             return
         
     def elimina_Registro(self, event=None):
-     pass
+       query = ('DELETE FROM t_participantes WHERE Id = ?') 
+       parametros = (self.entryId.get(), )
+       self.run_Query(query, parametros)
+       mssg.showinfo( 'Elimnados', f'El registro fue eliminado')
+       self.lee_tablaTreeView()
+
+
 
 if __name__ == "__main__":
     app = Participantes()
