@@ -241,7 +241,16 @@ class Participantes:
         
 
     def limpia_Campos(self):
-      pass
+        # Limpia todas las entradas
+        self.entryId.configure(state='normal')  # Aseguramos que se pueda editar antes de limpiar
+        self.entryId.delete(0, 'end')
+        self.entryNombre.delete(0, 'end')
+        self.entryDireccion.delete(0, 'end')
+        self.entryCelular.delete(0, 'end')
+        self.entryEntidad.delete(0, 'end')
+        self.entryFecha.delete(0, 'end')
+    
+
 
     def run_Query(self, query, parametros = ()):
         ''' Función para ejecutar los Querys a la base de datos ''' #Query es una indicación que le digo a sql
