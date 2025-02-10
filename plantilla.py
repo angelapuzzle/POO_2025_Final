@@ -170,9 +170,9 @@ class Participantes:
        # Etiquetas de las columnas
         self.treeDatos["columns"]=("Nombre","Ciudad","Dirección","Celular","Entidad","Fecha")
         # Determina el espacio a mostrar que ocupa el código
-        self.treeDatos.column('#0',         stretch="true", width=15) # #0 se refiere a que es la primera columna y no se puede cambiar.
+        self.treeDatos.column('#0',         stretch="true",             width=15) # #0 se refiere a que es la primera columna y no se puede cambiar.
         self.treeDatos.column('Nombre',     stretch="true",             width=60)
-        self.treeDatos.column('Ciudad',      stretch="true",             width=12)#Revisar widths
+        self.treeDatos.column('Ciudad',     stretch="true",             width=12) #Revisar widths
         self.treeDatos.column('Dirección',  stretch="true",             width=60)
         self.treeDatos.column('Celular',    stretch="true",             width=16)
         self.treeDatos.column('Entidad',    stretch="true",             width=60)
@@ -191,7 +191,7 @@ class Participantes:
         #Scrollbar en el eje Y de treeDatos
         self.scrollbar=ttk.Scrollbar(self.win, orient='vertical', command=self.treeDatos.yview)
         self.treeDatos.configure(yscroll=self.scrollbar.set)
-        self.scrollbar.place(x=1000, y=50, height=400)
+        self.scrollbar.place(x=1000, rely="0.04", height=400)
 
         #Carga los datos en treeDatos
         self.lee_tablaTreeView()
@@ -231,7 +231,7 @@ class Participantes:
         #   Nuevo
         self.entryIdText.set(self.treeDatos.item(self.treeDatos.selection())['text']) #Aca, todo lo que habia se reemplaza por el texto nuevom si coloco insert, se acumulan
         self.entryId.configure(state = 'readonly')#Deja id bloqueado para que no lo puedan editar
-        #Carga los demás entrys
+        #Carga los demás entries
         self.entryNombreText.set(self.treeDatos.item(self.treeDatos.selection())['values'][0])
         self.entryCiudadText.set(self.treeDatos.item(self.treeDatos.selection())['values'][1])
         self.entryDireccionText.set(self.treeDatos.item(self.treeDatos.selection())['values'][2])
@@ -245,6 +245,7 @@ class Participantes:
         self.entryId.configure(state='normal')  # Aseguramos que se pueda editar antes de limpiar
         self.entryId.delete(0, 'end')
         self.entryNombre.delete(0, 'end')
+        self.entryCiudad.delete(0, 'end')
         self.entryDireccion.delete(0, 'end')
         self.entryCelular.delete(0, 'end')
         self.entryEntidad.delete(0, 'end')
@@ -312,7 +313,7 @@ class Participantes:
         query = ('DELETE FROM t_participantes WHERE Id = ?')
         parametros = (self.entryId.get(), )
         self.run_Query(query, parametros)
-        mssg.showinfo( 'Eliminado', f'El registro fue eliminado')
+        mssg.showinfo('Eliminado', 'El registro fue eliminado')
         self.lee_tablaTreeView() #REVISAR
 
 
