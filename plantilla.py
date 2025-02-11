@@ -29,16 +29,17 @@ class Participantes:
         
         #Label Frame
         self.lblfrm_Datos = tk.LabelFrame(self.win, labelanchor="n", font=("Helvetica",13,"bold"))
-        
         self.lblfrm_Datos.configure(height="370", relief="groove", text=" Inscripción ", width="280")
         self.lblfrm_Datos.place(anchor="nw", relx="0.01", rely="0.04", x="0", y="0")
         self.lblfrm_Datos.grid_propagate(0)
+        for i in range(7):
+            self.lblfrm_Datos.rowconfigure(i, weight = 1)
         
         #Label Id
         self.lblId = ttk.Label(self.lblfrm_Datos)
         self.lblId.configure(anchor="e", font="TkTextFont", justify="left", text="Identificación")
         self.lblId.configure(width="12")
-        self.lblId.grid(column="0", padx="5", pady="15", row="0", sticky="w")
+        self.lblId.grid(column="0", padx="5", row="0", sticky="w")
         
         ### En lugar de hacer un bind, se crea un StringVar el cual ejecute la función de validación al cambiar su contenido
         ### y este StringVar se asocia con el Entry
@@ -54,7 +55,7 @@ class Participantes:
         self.lblNombre = ttk.Label(self.lblfrm_Datos)
         self.lblNombre.configure(anchor="e", font="TkTextFont", justify="left", text="Nombre")
         self.lblNombre.configure(width="12")
-        self.lblNombre.grid(column="0", padx="5", pady="15", row="1", sticky="w")
+        self.lblNombre.grid(column="0", padx="5", row="1", sticky="w")
         
         
         #Entry Nombre
@@ -67,7 +68,7 @@ class Participantes:
         self.lblCiudad = ttk.Label(self.lblfrm_Datos)
         self.lblCiudad.configure(anchor="e", font="TkTextFont", justify="left", text="Ciudad")
         self.lblCiudad.configure(width="12")
-        self.lblCiudad.grid(column="0", padx="5", pady="15", row="2", sticky="w")
+        self.lblCiudad.grid(column="0", padx="5", row="2", sticky="w")
         
         
         #Entry Ciudad
@@ -81,7 +82,7 @@ class Participantes:
         self.lblDireccion = ttk.Label(self.lblfrm_Datos)
         self.lblDireccion.configure(anchor="e", font="TkTextFont", justify="left", text="Dirección")
         self.lblDireccion.configure(width="12")
-        self.lblDireccion.grid(column="0", padx="5", pady="15", row="3", sticky="w")
+        self.lblDireccion.grid(column="0", padx="5", row="3", sticky="w")
         
         #Entry Direccion
         self.entryDireccionText = tk.StringVar()
@@ -93,7 +94,7 @@ class Participantes:
         self.lblCelular = ttk.Label(self.lblfrm_Datos)
         self.lblCelular.configure(anchor="e", font="TkTextFont", justify="left", text="Celular")
         self.lblCelular.configure(width="12")
-        self.lblCelular.grid(column="0", padx="5", pady="15", row="4", sticky="w")
+        self.lblCelular.grid(column="0", padx="5", row="4", sticky="w")
         
         #Entry Celular
         self.entryCelularText = tk.StringVar()
@@ -105,7 +106,7 @@ class Participantes:
         self.lblEntidad = ttk.Label(self.lblfrm_Datos)
         self.lblEntidad.configure(anchor="e", font="TkTextFont", justify="left", text="Entidad")
         self.lblEntidad.configure(width="12")
-        self.lblEntidad.grid(column="0", padx="5", pady="15", row="5", sticky="w")
+        self.lblEntidad.grid(column="0", padx="5", row="5", sticky="w")
         
         #Entry Entidad
         self.entryEntidadText = tk.StringVar()
@@ -117,7 +118,7 @@ class Participantes:
         self.lblFecha = ttk.Label(self.lblfrm_Datos)
         self.lblFecha.configure(anchor="e", font="TkTextFont", justify="left", text="Fecha")
         self.lblFecha.configure(width="12")
-        self.lblFecha.grid(column="0", padx="5", pady="15", row="6", sticky="w")
+        self.lblFecha.grid(column="0", padx="5", row="6", sticky="w")
         
         #Entry Fecha
         self.entryFechaText = tk.StringVar()
@@ -125,6 +126,8 @@ class Participantes:
         self.entryFecha.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
         self.entryFecha.grid(column="1", row="6", sticky="w")
         self.entryFecha.bind("<Key>", self.valida_Fecha)
+
+        
         
         
         #Botón Grabar
@@ -163,8 +166,7 @@ class Participantes:
         self.style.configure('estilo.Treeview.Heading', background='Azure', font=('Calibri Light', 10,'bold')) 
         self.style.layout("estilo.Treeview", [('estilo.Treeview.treearea', {'sticky': 'nswe'})])
 
-        self.treeDatos = ttk.Treeview(self.win, height = 10, style="estilo.Treeview")
-        #self.treeDatos.place(x=380, y=10, height=340, width = 500) #REVISAR ESTO
+        self.treeDatos = ttk.Treeview(self.win, style="estilo.Treeview")
         self.treeDatos.place(anchor="nw", height="400", rely="0.04", width="700", x="300", y="0")
 
        # Etiquetas de las columnas
@@ -283,7 +285,7 @@ class Participantes:
                         self.entryCelular.get(), self.entryEntidad.get(), self.entryFecha.get(),
                             self.entryId.get())
             self.run_Query(query, parametros)
-            mssg.showinfo('Ok',f' Registro actualizado con éxito')
+            mssg.showinfo('Ok', 'Registro actualizado con éxito')
         else:
             query = 'INSERT INTO t_participantes VALUES(?, ?, ?, ?, ?, ?, ?)'
             parametros = (self.entryId.get(),self.entryNombre.get(), self.entryCiudad.get(), self.entryDireccion.get(),
