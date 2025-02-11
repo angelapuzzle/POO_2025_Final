@@ -11,6 +11,9 @@ class Participantes:
     db_name = path + r'/Participantes.db'
     program_icon = path + r'/ico_registro.ico'
     actualiza = None
+    color_palette = {
+        "entry": "#FFFFFF"
+    }
     def __init__(self, master=None):
         # Top Level - Ventana Principal
         self.win = tk.Tk() if master is None else tk.Toplevel()
@@ -48,6 +51,7 @@ class Participantes:
         self.entryIdText.trace_add('write', self.valida_Identificacion_Callback)
         self.entryId = tk.Entry(self.lblfrm_Datos, textvariable=self.entryIdText)
         self.entryId.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
+        self.entryId.configure(background=self.color_palette["entry"])
         self.entryId.grid(column="1", row="0", sticky="w")
         
         
@@ -62,6 +66,7 @@ class Participantes:
         self.entryNombreText = tk.StringVar()
         self.entryNombre = tk.Entry(self.lblfrm_Datos, textvariable=self.entryNombreText)
         self.entryNombre.configure(exportselection="false", justify="left",relief="groove", takefocus=True, width="30")
+        self.entryNombre.configure(background=self.color_palette["entry"])
         self.entryNombre.grid(column="1", row="1", sticky="w")
         
         #Label Ciudad
@@ -75,6 +80,7 @@ class Participantes:
         self.entryCiudadText = tk.StringVar()
         self.entryCiudad = tk.Entry(self.lblfrm_Datos, textvariable=self.entryCiudadText)
         self.entryCiudad.configure(exportselection="false", justify="left",relief="groove", takefocus=True, width="30")
+        self.entryCiudad.configure(background=self.color_palette["entry"])
         self.entryCiudad.grid(column="1", row="2", sticky="w")
         
         
@@ -88,6 +94,7 @@ class Participantes:
         self.entryDireccionText = tk.StringVar()
         self.entryDireccion = tk.Entry(self.lblfrm_Datos, textvariable=self.entryDireccionText)
         self.entryDireccion.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
+        self.entryDireccion.configure(background=self.color_palette["entry"])
         self.entryDireccion.grid(column="1", row="3", sticky="w")
         
         #Label Celular
@@ -100,6 +107,7 @@ class Participantes:
         self.entryCelularText = tk.StringVar()
         self.entryCelular = tk.Entry(self.lblfrm_Datos, textvariable=self.entryCelularText)
         self.entryCelular.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
+        self.entryCelular.configure(background=self.color_palette["entry"])
         self.entryCelular.grid(column="1", row="4", sticky="w")
         
         #Label Entidad
@@ -112,6 +120,7 @@ class Participantes:
         self.entryEntidadText = tk.StringVar()
         self.entryEntidad = tk.Entry(self.lblfrm_Datos, textvariable=self.entryEntidadText)
         self.entryEntidad.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
+        self.entryEntidad.configure(background=self.color_palette["entry"])
         self.entryEntidad.grid(column="1", row="5", sticky="w")
         
         #Label Fecha
@@ -122,11 +131,11 @@ class Participantes:
         
         #Entry Fecha
         self.entryFechaText = tk.StringVar()
+        self.entryFechaText.trace_add('write', self.valida_Fecha_Callback)
         self.entryFecha = tk.Entry(self.lblfrm_Datos, textvariable=self.entryFechaText)
         self.entryFecha.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
+        self.entryFecha.configure(background=self.color_palette["entry"])
         self.entryFecha.grid(column="1", row="6", sticky="w")
-        self.entryFecha.bind("<Key>", self.valida_Fecha)
-
         
         
         
@@ -205,8 +214,12 @@ class Participantes:
     def run(self):
         self.mainwindow.mainloop()
 
+    def reset_cursor(self, entry, index):
+        entry.icursor(index)
+
     def valida_Identificacion_Callback(self, var, index, mode):
         text = self.entryIdText.get()
+        cursor_pos = self.entryId.index(tk.INSERT) #Guarda la posición actual del cursor para recuperarla después de borrar y reinsertar
 
         #Crea una copia filtrada del texto para solo mantener los carácteres númericos
         filtered_text = ""
@@ -222,9 +235,29 @@ class Participantes:
 
         #Pone en la StringVar el texto filtrado recortado a los primeros 15 caracteres
         self.entryIdText.set(filtered_text[0:15])
+        self.win.after(1, self.reset_cursor, self.entryId, cursor_pos) #Devuelve el cursor a su posicion original
 
-    def valida_Fecha(self, event=None):
-      pass
+    def valida_Fecha_Callback(self, var, index, mode):
+        text = self.entryFechaText.get()
+        cursor_pos = self.entryFecha.index(tk.INSERT)
+        filtered_text = ""
+        for char in text:
+            if char in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}:
+                filtered_text += char
+        filtered_text = filtered_text[0:8]
+
+        if len(filtered_text) >= 4:
+            formatted_text = filtered_text[0:2] + '/' + filtered_text [2:4] + '/' + filtered_text[4:]
+        elif len(filtered_text) >= 2:
+            formatted_text = filtered_text[0:2] + '/' + filtered_text [2:]
+        else:
+            formatted_text = filtered_text
+
+        if len(filtered_text) in {2, 4}:
+            cursor_pos += 1
+
+        self.entryFechaText.set(formatted_text)
+        self.win.after(1, self.reset_cursor, self.entryFecha, cursor_pos)
     
     '''Función utilizada para el boón editar, trae desde el treeview el participante seleccionado
         y lo carga en los entry '''
@@ -245,13 +278,13 @@ class Participantes:
     def limpia_Campos(self):
         # Limpia todas las entradas
         self.entryId.configure(state='normal')  # Aseguramos que se pueda editar antes de limpiar
-        self.entryId.delete(0, 'end')
-        self.entryNombre.delete(0, 'end')
-        self.entryCiudad.delete(0, 'end')
-        self.entryDireccion.delete(0, 'end')
-        self.entryCelular.delete(0, 'end')
-        self.entryEntidad.delete(0, 'end')
-        self.entryFecha.delete(0, 'end')
+        self.entryIdText.set("")
+        self.entryNombreText.set("")
+        self.entryCiudadText.set("")
+        self.entryDireccionText.set("")
+        self.entryCelularText.set("")
+        self.entryEntidadText.set("")
+        self.entryFechaText.set("")
     
 
 
