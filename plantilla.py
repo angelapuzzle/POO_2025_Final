@@ -78,8 +78,8 @@ class Participantes:
         self.lblCiudad.configure(width='12')
         self.lblCiudad.grid(column='0', padx='5', row='2', sticky='w')
 
-        #Frame Ciudad
-        self.frmCiudad = tk.Frame(self.lblfrm_Datos)
+        #Frame Ciudad (background transparente)
+        self.frmCiudad = tk.Frame(self.lblfrm_Datos, background='')
         self.frmCiudad.grid(column='1', row='2', sticky='w')
         
         
@@ -149,36 +149,34 @@ class Participantes:
         self.entryFecha.configure(background=self.color_palette['entry'])
         self.entryFecha.grid(column='1', row='6', sticky='w')
         
-        
+        #Frame Botones (background transparente)
+        self.frmBotones = tk.Frame(self.win, background='')
+        self.frmBotones.place(anchor='nw', relx='0.005', rely='0.82', x='0', y='0')
         
         #Botón Grabar
-        self.btnGrabar = ttk.Button(self.win)
-        self.btnGrabar.configure(state='normal', text='Grabar', width='9')
-        self.btnGrabar.place(anchor='nw', relx='0.01', rely='0.83', x='0', y='0')
-        self.btnGrabar.bind('<1>', self.adiciona_Registro)
+        self.btnGrabar = ttk.Button(self.frmBotones)
+        self.btnGrabar.configure(state='normal', text='Grabar', width='9', command=self.adiciona_Registro)
+        self.btnGrabar.grid(column='0', row='0', sticky='n', padx='4', pady='4')
         
         #Botón Editar
-        self.btnEditar = ttk.Button(self.win)        
-        self.btnEditar.configure(text='Editar', width='9')
-        self.btnEditar.place(anchor='nw', relx='0.01', rely='0.83', x='80', y='0')
-        self.btnEditar.bind('<1>', self.edita_tablaTreeView) #REVISAR CADA UNA DE LAS FUNCIONES
+        self.btnEditar = ttk.Button(self.frmBotones)        
+        self.btnEditar.configure(text='Editar', width='9', command=self.edita_tablaTreeView)
+        self.btnEditar.grid(column='1', row='0', sticky='n', padx='4', pady='4')
         
         #Botón Eliminar
-        self.btnEliminar = ttk.Button(self.win)
-        self.btnEliminar.configure(text='Eliminar', width='9')
-        self.btnEliminar.place(anchor='nw', relx='0.01', rely='0.83', x='152', y='0')
-        self.btnEliminar.bind('<1>', self.elimina_Registro)
+        self.btnEliminar = ttk.Button(self.frmBotones)
+        self.btnEliminar.configure(text='Eliminar', width='9', command=self.elimina_Registro)
+        self.btnEliminar.grid(column='2', row='0', sticky='n', padx='4', pady='4')
         
-        #Botón Cancelar/Daniel
-        self.btnCancelar = ttk.Button(self.win)
-        self.btnCancelar.configure(text='Cancelar', width='9',command = self.limpia_Campos)
-        self.btnCancelar.place(anchor='nw', relx='0.01', rely='0.83', x='225', y='0')
+        #Botón Cancelar
+        self.btnCancelar = ttk.Button(self.frmBotones)
+        self.btnCancelar.configure(text='Cancelar', width='9', command=self.limpia_Campos)
+        self.btnCancelar.grid(column='3', row='0', sticky='n', padx='4', pady='4')
         
         #Botón Consultar
-        self.btnConsultar = ttk.Button(self.win)
-        self.btnConsultar.configure(text='Consultar', width='9') #,command = self.limpia_Campos
-        self.btnConsultar.place(anchor='nw', relx='0.01', rely='0.83', x='115', y='29')
-        #Agregar bind, 1 y la función
+        self.btnConsultar = ttk.Button(self.frmBotones)
+        self.btnConsultar.configure(text='Consultar', width='9') #command = Función
+        self.btnConsultar.grid(column='1', columnspan=2, row='1', sticky='n', padx='4', pady='4')
         
         
         #tablaTreeView
@@ -477,7 +475,7 @@ class Participantes:
         btnSeleccionar.configure(command=confirmar_Seleccion)
 
 
-    def adiciona_Registro(self, event=None):
+    def adiciona_Registro(self):
         '''Adiciona un producto a la BD si la validación es True'''
         if self.actualiza:
             self.actualiza = None #REVISION
@@ -502,7 +500,7 @@ class Participantes:
         self.limpia_Campos()
         self.lee_tablaTreeView()
 
-    def edita_tablaTreeView(self, event=None):
+    def edita_tablaTreeView(self):
         try:
             # Carga los campos desde la tabla TreeView
             self.treeDatos.item(self.treeDatos.selection())['text']
@@ -514,7 +512,7 @@ class Participantes:
             mssg.showerror('¡ Atención !','Por favor seleccione un ítem de la tabla')
             return
         
-    def elimina_Registro(self, event=None):
+    def elimina_Registro(self):
         query = ('DELETE FROM t_participantes WHERE Id = ?')
         parametros = (self.entryId.get(), )
         self.run_Query(query, parametros)
