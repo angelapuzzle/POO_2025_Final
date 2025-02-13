@@ -340,13 +340,18 @@ class Participantes:
         
     def crear_Selector_Ciudad(self, event=None):
         pre_cod_departamento = None
+        pre_cod_departamento_text = None
         pre_cod_ciudad = None
         pre_cod_ciudad_text = None
 
         ventana = tk.Toplevel(self.win)
         ventana.title('Seleccionar Ciudad')
-        ventana.geometry('400x300')
+        ventana.geometry('420x320')
         ventana.transient(self.win) #Indica que la ventana depende de la principal
+
+        #Label mostrando la selección actual
+        lblSeleccion = ttk.Label(ventana, anchor='center', text='Ciudad seleccionada: ')
+        lblSeleccion.pack(side='top', fill='x', padx=5, pady=5)
         
         #Frame para departamentos
         frmDepartamentos = ttk.Frame(ventana)
@@ -371,29 +376,75 @@ class Participantes:
         btnSeleccionar = ttk.Button(ventana, text='Seleccionar', state='disabled')
         btnSeleccionar.pack(side='bottom', pady=5)
     
-        # Cargar departamentos
-        for departamento in self.get_Departamentos():
-            listboxDepartamentos.insert('end', departamento)
+    
+        def cargar_Lista_Departamentos(seleccion_departamento = None):
+            departamentos = self.get_Departamentos()
+            for departamento in departamentos:
+                listboxDepartamentos.insert('end', departamento)
+            if seleccion_departamento is not None:
+                index_departamento = departamentos.index(seleccion_departamento)
+                listboxDepartamentos.focus_set()
+                listboxDepartamentos.see(index_departamento)
+                listboxDepartamentos.activate(index_departamento)
+
+        def cargar_Lista_Ciudades(departamento, seleccion_ciudad = None):
+            ciudades = self.get_Ciudades_Por_Departamento(departamento)
+            listboxCiudades.delete(0, 'end')
+            for ciudad in ciudades:
+                listboxCiudades.insert('end', ciudad)
+            if seleccion_ciudad is not None:
+                index_ciudad = ciudades.index(seleccion_ciudad)
+                listboxCiudades.focus_set()
+                listboxCiudades.see(index_ciudad)
+                listboxCiudades.activate(index_ciudad)
+
+        # Si ya hay una ciudad seleccionada precargar todo, sino solo cargar la lista de departamentos sin tener ninguno seleccionado
+        if self.cod_departamento is not None:
+            pre_cod_departamento = self.cod_departamento
+            pre_cod_ciudad = self.cod_ciudad
+
+            query = 'SELECT DISTINCT Nombre_Departamento FROM t_ciudades WHERE Id_Departamento = ?'
+            parametros = (self.cod_departamento, )
+            departamento = self.run_Query(query, parametros).fetchone()[0]
+            cargar_Lista_Departamentos(departamento)
+
+            query = 'SELECT Nombre_Ciudad FROM t_ciudades WHERE Id_Ciudad = ?'
+            parametros = (self.cod_ciudad, )
+            ciudad = self.run_Query(query, parametros).fetchone()[0]
+            cargar_Lista_Ciudades(departamento, ciudad)
+
+            pre_cod_departamento_text = departamento
+            pre_cod_ciudad_text = ciudad
+
+            lblSeleccion.configure(text='Ciudad seleccionada: ' + ciudad + ', ' + departamento)
+        else:
+            cargar_Lista_Departamentos()
+            
     
         def seleccionar_Departamento(event):
-            nonlocal pre_cod_departamento # permite modificar la variable pre_cod_departamento definida en crear_Selector_Ciudad
+            # permite modificar las variables definidas en crear_Selector_Ciudad
+            nonlocal pre_cod_departamento 
+            nonlocal pre_cod_departamento_text
             nonlocal pre_cod_ciudad
+            nonlocal pre_cod_ciudad_text
             seleccion_departamento = listboxDepartamentos.curselection()
             if seleccion_departamento:
                 # Si se selecciona otro departamento se deselecciona la ciudad
                 pre_cod_ciudad = None
+                pre_cod_ciudad_text = None
                 btnSeleccionar.configure(state='disabled')
+                lblSeleccion.configure(text='Ciudad seleccionada: ')
 
                 departamento = listboxDepartamentos.get(seleccion_departamento[0])
 
                 query = 'SELECT DISTINCT Id_Departamento FROM t_ciudades WHERE Nombre_Departamento LIKE ?'
                 parametros = (departamento, )
                 pre_cod_departamento = self.run_Query(query, parametros).fetchone()[0]
+                pre_cod_departamento_text = departamento
 
-                ciudades = self.get_Ciudades_Por_Departamento(departamento)
-                listboxCiudades.delete(0, 'end')
-                for ciudad in ciudades:
-                    listboxCiudades.insert('end', ciudad)
+                cargar_Lista_Ciudades(departamento)
+
+                
     
         def seleccionar_Ciudad(event):
             nonlocal pre_cod_ciudad
@@ -403,11 +454,13 @@ class Participantes:
             if seleccion_ciudad:
                 ciudad = listboxCiudades.get(seleccion_ciudad[0])
 
-                query = 'SELECT DISTINCT Id_Ciudad FROM t_ciudades WHERE Id_Departamento = ? AND Nombre_Ciudad LIKE ?'
+                query = 'SELECT Id_Ciudad FROM t_ciudades WHERE Id_Departamento = ? AND Nombre_Ciudad LIKE ?'
                 parametros = (pre_cod_departamento, ciudad)
                 pre_cod_ciudad = self.run_Query(query, parametros).fetchone()[0]
                 pre_cod_ciudad_text = ciudad
+
                 btnSeleccionar.configure(state='normal')
+                lblSeleccion.configure(text='Ciudad seleccionada: ' + pre_cod_ciudad_text + ', ' + pre_cod_departamento_text)
         
         def confirmar_Seleccion(event = None):
             if pre_cod_departamento is not None and pre_cod_ciudad is not None:
@@ -442,8 +495,8 @@ class Participantes:
                           self.cod_departamento, self.cod_ciudad)
             if self.valida_Grabar():
                 self.run_Query(query, parametros)
+                mssg.showinfo('',f'Registro con ID: {self.entryIdText.get()}, agregado')
                 self.limpia_Campos()
-                mssg.showinfo('',f'Registro: {self.entryId.get()} .. agregado')
             else:
                 mssg.showerror('¡ Atención !','No puede dejar la identificación vacía')
         self.limpia_Campos()
