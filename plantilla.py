@@ -12,7 +12,7 @@ class Participantes:
     program_icon = path + r'/ico_registro.ico'
     actualiza = None
     color_palette = {
-        "entry": "#FFFFFF"
+        'entry': '#FFFFFF'
     }
 
     cod_departamento = None
@@ -23,29 +23,29 @@ class Participantes:
         
              
         #Top Level - Configuración
-        self.win.configure(background="#d9f0f9", height="480", relief="flat", width="1024")
-        self.win.geometry("1024x480")
+        self.win.configure(background='#d9f0f9', height='480', relief='flat', width='1024')
+        self.win.geometry('1024x480')
         self.win.iconbitmap(self.program_icon)
         self.win.resizable(False, False)
-        self.win.title("Conferencia MACSS y la Ingeniería de Requerimientos")
+        self.win.title('Conferencia MACSS y la Ingeniería de Requerimientos')
         self.win.pack_propagate(0) 
         
         # Main widget
         self.mainwindow = self.win
         
         #Label Frame
-        self.lblfrm_Datos = tk.LabelFrame(self.win, labelanchor="n", font=("Helvetica",13,"bold"))
-        self.lblfrm_Datos.configure(height="370", relief="groove", text=" Inscripción ", width="280")
-        self.lblfrm_Datos.place(anchor="nw", relx="0.01", rely="0.04", x="0", y="0")
+        self.lblfrm_Datos = tk.LabelFrame(self.win, labelanchor='n', font=('Helvetica',13,'bold'))
+        self.lblfrm_Datos.configure(height='370', relief='groove', text=' Inscripción ', width='280')
+        self.lblfrm_Datos.place(anchor='nw', relx='0.01', rely='0.04', x='0', y='0')
         self.lblfrm_Datos.grid_propagate(0)
         for i in range(7):
             self.lblfrm_Datos.rowconfigure(i, weight = 1)
         
         #Label Id
         self.lblId = ttk.Label(self.lblfrm_Datos)
-        self.lblId.configure(anchor="e", font="TkTextFont", justify="left", text="Identificación")
-        self.lblId.configure(width="12")
-        self.lblId.grid(column="0", padx="5", row="0", sticky="w")
+        self.lblId.configure(anchor='e', font='TkTextFont', justify='left', text='Identificación')
+        self.lblId.configure(width='12')
+        self.lblId.grid(column='0', padx='5', row='0', sticky='w')
         
         ### En lugar de hacer un bind, se crea un StringVar el cual ejecute la función de validación al cambiar su contenido
         ### y este StringVar se asocia con el Entry
@@ -53,132 +53,131 @@ class Participantes:
         self.entryIdText = tk.StringVar()
         self.entryIdText.trace_add('write', self.valida_Identificacion)
         self.entryId = tk.Entry(self.lblfrm_Datos, textvariable=self.entryIdText)
-        self.entryId.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
-        self.entryId.configure(background=self.color_palette["entry"])
-        self.entryId.grid(column="1", row="0", sticky="w")
+        self.entryId.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
+        self.entryId.configure(background=self.color_palette['entry'])
+        self.entryId.grid(column='1', row='0', sticky='w')
         
         
         #Label Nombre
         self.lblNombre = ttk.Label(self.lblfrm_Datos)
-        self.lblNombre.configure(anchor="e", font="TkTextFont", justify="left", text="Nombre")
-        self.lblNombre.configure(width="12")
-        self.lblNombre.grid(column="0", padx="5", row="1", sticky="w")
+        self.lblNombre.configure(anchor='e', font='TkTextFont', justify='left', text='Nombre')
+        self.lblNombre.configure(width='12')
+        self.lblNombre.grid(column='0', padx='5', row='1', sticky='w')
         
         
         #Entry Nombre
         self.entryNombreText = tk.StringVar()
         self.entryNombre = tk.Entry(self.lblfrm_Datos, textvariable=self.entryNombreText)
-        self.entryNombre.configure(exportselection="false", justify="left",relief="groove", takefocus=True, width="30")
-        self.entryNombre.configure(background=self.color_palette["entry"])
-        self.entryNombre.grid(column="1", row="1", sticky="w")
+        self.entryNombre.configure(exportselection='false', justify='left',relief='groove', takefocus=True, width='30')
+        self.entryNombre.configure(background=self.color_palette['entry'])
+        self.entryNombre.grid(column='1', row='1', sticky='w')
         
         #Label Ciudad
         self.lblCiudad = ttk.Label(self.lblfrm_Datos)
-        self.lblCiudad.configure(anchor="e", font="TkTextFont", justify="left", text="Ciudad")
-        self.lblCiudad.configure(width="12")
-        self.lblCiudad.grid(column="0", padx="5", row="2", sticky="w")
+        self.lblCiudad.configure(anchor='e', font='TkTextFont', justify='left', text='Ciudad')
+        self.lblCiudad.configure(width='12')
+        self.lblCiudad.grid(column='0', padx='5', row='2', sticky='w')
 
         #Frame Ciudad
         self.frmCiudad = tk.Frame(self.lblfrm_Datos)
-        self.frmCiudad.grid(column="1", row="2", sticky="w")
+        self.frmCiudad.grid(column='1', row='2', sticky='w')
         
         
         #Entry Ciudad
         self.entryCiudadText = tk.StringVar()
-        self.entryCiudadText.set("[Seleccionar]")
+        self.entryCiudadText.set('[Seleccionar]')
         self.entryCiudad = tk.Entry(self.frmCiudad, textvariable=self.entryCiudadText)
-        self.entryCiudad.configure(state='readonly', relief="groove", width="25")
-        self.entryCiudad.configure(background=self.color_palette["entry"], readonlybackground=self.color_palette["entry"])
-        self.entryCiudad.grid(column="0", row="0", sticky="w")
+        self.entryCiudad.configure(state='readonly', relief='groove', width='25')
+        self.entryCiudad.configure(background=self.color_palette['entry'], readonlybackground=self.color_palette['entry'])
+        self.entryCiudad.grid(column='0', row='0', sticky='w')
 
         # Botón de selección
-        self.btnSeleccionarCiudad = ttk.Button(self.frmCiudad, text="...", width=2)
-        self.btnSeleccionarCiudad.grid(column="1", row="0", padx=5)
-        self.btnSeleccionarCiudad.bind("<1>", self.crear_Selector_Ciudad)
+        self.btnSeleccionarCiudad = ttk.Button(self.frmCiudad, text='...', width=2)
+        self.btnSeleccionarCiudad.grid(column='1', row='0', padx=5)
+        self.btnSeleccionarCiudad.bind('<1>', self.crear_Selector_Ciudad)
         
         #Label Direccion
         self.lblDireccion = ttk.Label(self.lblfrm_Datos)
-        self.lblDireccion.configure(anchor="e", font="TkTextFont", justify="left", text="Dirección")
-        self.lblDireccion.configure(width="12")
-        self.lblDireccion.grid(column="0", padx="5", row="3", sticky="w")
+        self.lblDireccion.configure(anchor='e', font='TkTextFont', justify='left', text='Dirección')
+        self.lblDireccion.configure(width='12')
+        self.lblDireccion.grid(column='0', padx='5', row='3', sticky='w')
         
         #Entry Direccion
         self.entryDireccionText = tk.StringVar()
         self.entryDireccion = tk.Entry(self.lblfrm_Datos, textvariable=self.entryDireccionText)
-        self.entryDireccion.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
-        self.entryDireccion.configure(background=self.color_palette["entry"])
-        self.entryDireccion.grid(column="1", row="3", sticky="w")
+        self.entryDireccion.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
+        self.entryDireccion.configure(background=self.color_palette['entry'])
+        self.entryDireccion.grid(column='1', row='3', sticky='w')
         
         #Label Celular
         self.lblCelular = ttk.Label(self.lblfrm_Datos)
-        self.lblCelular.configure(anchor="e", font="TkTextFont", justify="left", text="Celular")
-        self.lblCelular.configure(width="12")
-        self.lblCelular.grid(column="0", padx="5", row="4", sticky="w")
+        self.lblCelular.configure(anchor='e', font='TkTextFont', justify='left', text='Celular')
+        self.lblCelular.configure(width='12')
+        self.lblCelular.grid(column='0', padx='5', row='4', sticky='w')
         
         #Entry Celular
         self.entryCelularText = tk.StringVar()
         self.entryCelular = tk.Entry(self.lblfrm_Datos, textvariable=self.entryCelularText)
-        self.entryCelular.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
-        self.entryCelular.configure(background=self.color_palette["entry"])
-        self.entryCelular.grid(column="1", row="4", sticky="w")
+        self.entryCelular.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
+        self.entryCelular.configure(background=self.color_palette['entry'])
+        self.entryCelular.grid(column='1', row='4', sticky='w')
         
         #Label Entidad
         self.lblEntidad = ttk.Label(self.lblfrm_Datos)
-        self.lblEntidad.configure(anchor="e", font="TkTextFont", justify="left", text="Entidad")
-        self.lblEntidad.configure(width="12")
-        self.lblEntidad.grid(column="0", padx="5", row="5", sticky="w")
+        self.lblEntidad.configure(anchor='e', font='TkTextFont', justify='left', text='Entidad')
+        self.lblEntidad.configure(width='12')
+        self.lblEntidad.grid(column='0', padx='5', row='5', sticky='w')
         
         #Entry Entidad
         self.entryEntidadText = tk.StringVar()
         self.entryEntidad = tk.Entry(self.lblfrm_Datos, textvariable=self.entryEntidadText)
-        self.entryEntidad.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
-        self.entryEntidad.configure(background=self.color_palette["entry"])
-        self.entryEntidad.grid(column="1", row="5", sticky="w")
+        self.entryEntidad.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
+        self.entryEntidad.configure(background=self.color_palette['entry'])
+        self.entryEntidad.grid(column='1', row='5', sticky='w')
         
         #Label Fecha
         self.lblFecha = ttk.Label(self.lblfrm_Datos)
-        self.lblFecha.configure(anchor="e", font="TkTextFont", justify="left", text="Fecha")
-        self.lblFecha.configure(width="12")
-        self.lblFecha.grid(column="0", padx="5", row="6", sticky="w")
+        self.lblFecha.configure(anchor='e', font='TkTextFont', justify='left', text='Fecha')
+        self.lblFecha.configure(width='12')
+        self.lblFecha.grid(column='0', padx='5', row='6', sticky='w')
         
         #Entry Fecha
         self.entryFechaText = tk.StringVar()
         self.entryFechaText.trace_add('write', self.valida_Fecha)
         self.entryFecha = tk.Entry(self.lblfrm_Datos, textvariable=self.entryFechaText)
-        self.entryFecha.configure(exportselection="false", justify="left", relief="groove", takefocus=True, width="30")
-        self.entryFecha.configure(background=self.color_palette["entry"])
-        self.entryFecha.grid(column="1", row="6", sticky="w")
-        self.entryFecha.bind('<1>', self.printCods)
+        self.entryFecha.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
+        self.entryFecha.configure(background=self.color_palette['entry'])
+        self.entryFecha.grid(column='1', row='6', sticky='w')
         
         
         
         #Botón Grabar
         self.btnGrabar = ttk.Button(self.win)
-        self.btnGrabar.configure(state="normal", text="Grabar", width="9")
-        self.btnGrabar.place(anchor="nw", relx="0.01", rely="0.83", x="0", y="0")
-        self.btnGrabar.bind("<1>", self.adiciona_Registro)
+        self.btnGrabar.configure(state='normal', text='Grabar', width='9')
+        self.btnGrabar.place(anchor='nw', relx='0.01', rely='0.83', x='0', y='0')
+        self.btnGrabar.bind('<1>', self.adiciona_Registro)
         
         #Botón Editar
         self.btnEditar = ttk.Button(self.win)        
-        self.btnEditar.configure(text="Editar", width="9")
-        self.btnEditar.place(anchor="nw", relx="0.01", rely="0.83", x="80", y="0")
-        self.btnEditar.bind("<1>", self.edita_tablaTreeView) #REVISAR CADA UNA DE LAS FUNCIONES
+        self.btnEditar.configure(text='Editar', width='9')
+        self.btnEditar.place(anchor='nw', relx='0.01', rely='0.83', x='80', y='0')
+        self.btnEditar.bind('<1>', self.edita_tablaTreeView) #REVISAR CADA UNA DE LAS FUNCIONES
         
         #Botón Eliminar
         self.btnEliminar = ttk.Button(self.win)
-        self.btnEliminar.configure(text="Eliminar", width="9")
-        self.btnEliminar.place(anchor="nw", relx="0.01", rely="0.83", x="152", y="0")
-        self.btnEliminar.bind("<1>", self.elimina_Registro)
+        self.btnEliminar.configure(text='Eliminar', width='9')
+        self.btnEliminar.place(anchor='nw', relx='0.01', rely='0.83', x='152', y='0')
+        self.btnEliminar.bind('<1>', self.elimina_Registro)
         
         #Botón Cancelar/Daniel
         self.btnCancelar = ttk.Button(self.win)
         self.btnCancelar.configure(text='Cancelar', width='9',command = self.limpia_Campos)
-        self.btnCancelar.place(anchor='nw', relx="0.01", rely='0.83', x='225', y='0')
+        self.btnCancelar.place(anchor='nw', relx='0.01', rely='0.83', x='225', y='0')
         
         #Botón Consultar
         self.btnConsultar = ttk.Button(self.win)
         self.btnConsultar.configure(text='Consultar', width='9') #,command = self.limpia_Campos
-        self.btnConsultar.place(anchor='nw', relx="0.01", rely='0.83', x='115', y='29')
+        self.btnConsultar.place(anchor='nw', relx='0.01', rely='0.83', x='115', y='29')
         #Agregar bind, 1 y la función
         
         
@@ -186,21 +185,21 @@ class Participantes:
         self.style=ttk.Style()
         self.style.configure('estilo.Treeview', highlightthickness=0, bd=0, background='AliceBlue', font=('Calibri Light',10))
         self.style.configure('estilo.Treeview.Heading', background='Azure', font=('Calibri Light', 10,'bold')) 
-        self.style.layout("estilo.Treeview", [('estilo.Treeview.treearea', {'sticky': 'nswe'})])
+        self.style.layout('estilo.Treeview', [('estilo.Treeview.treearea', {'sticky': 'nswe'})])
 
-        self.treeDatos = ttk.Treeview(self.win, style="estilo.Treeview")
-        self.treeDatos.place(anchor="nw", height="400", rely="0.04", width="700", x="300", y="0")
+        self.treeDatos = ttk.Treeview(self.win, style='estilo.Treeview')
+        self.treeDatos.place(anchor='nw', height='400', rely='0.04', width='700', x='300', y='0')
 
        # Etiquetas de las columnas
-        self.treeDatos["columns"]=("Nombre","Ciudad","Dirección","Celular","Entidad","Fecha")
+        self.treeDatos['columns']=('Nombre','Ciudad','Dirección','Celular','Entidad','Fecha')
         # Determina el espacio a mostrar que ocupa el código
-        self.treeDatos.column('#0',         stretch="true",             width=15) # #0 se refiere a que es la primera columna y no se puede cambiar.
-        self.treeDatos.column('Nombre',     stretch="true",             width=60)
-        self.treeDatos.column('Ciudad',     stretch="true",             width=12) #Revisar widths
-        self.treeDatos.column('Dirección',  stretch="true",             width=60)
-        self.treeDatos.column('Celular',    stretch="true",             width=16)
-        self.treeDatos.column('Entidad',    stretch="true",             width=60)
-        self.treeDatos.column('Fecha',      stretch="true",             width=12)
+        self.treeDatos.column('#0',         stretch='true',             width=15) # #0 se refiere a que es la primera columna y no se puede cambiar.
+        self.treeDatos.column('Nombre',     stretch='true',             width=60)
+        self.treeDatos.column('Ciudad',     stretch='true',             width=12) #Revisar widths
+        self.treeDatos.column('Dirección',  stretch='true',             width=60)
+        self.treeDatos.column('Celular',    stretch='true',             width=16)
+        self.treeDatos.column('Entidad',    stretch='true',             width=60)
+        self.treeDatos.column('Fecha',      stretch='true',             width=12)
         
 
        #Encabezados de las columnas de la pantalla
@@ -215,15 +214,11 @@ class Participantes:
         #Scrollbar en el eje Y de treeDatos
         self.scrollbar=ttk.Scrollbar(self.win, orient='vertical', command=self.treeDatos.yview)
         self.treeDatos.configure(yscroll=self.scrollbar.set)
-        self.scrollbar.place(x=1000, rely="0.04", height=400)
+        self.scrollbar.place(x=1000, rely='0.04', height=400)
 
         #Carga los datos en treeDatos
         self.lee_tablaTreeView()
 
-    
-    def printCods(self, event):
-        print(self.cod_departamento)
-        print(self.cod_ciudad)
 
     def run(self):
         self.mainwindow.mainloop()
@@ -259,7 +254,7 @@ class Participantes:
         text = self.entryIdText.get()
 
         #Crea una copia filtrada del texto para solo mantener los carácteres númericos
-        filtered_text = ""
+        filtered_text = ''
         for char in text:
             if char in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}:
                 filtered_text += char
@@ -274,7 +269,7 @@ class Participantes:
     def valida_Fecha(self, var, index, mode):
         text = self.entryFechaText.get()
         cursor_pos = self.entryFecha.index(tk.INSERT)
-        filtered_text = ""
+        filtered_text = ''
         for char in text:
             if char in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}:
                 filtered_text += char
@@ -335,15 +330,12 @@ class Participantes:
         return [row[0] for row in self.run_Query(query)]
 
     def get_Ciudades_Por_Departamento(self, departamento):
-        print(f"Consultando ciudades para el departamento: '{departamento}'") #Mensaje de prueba
         query = 'SELECT Nombre_Ciudad FROM t_ciudades WHERE Nombre_Departamento = ? ORDER BY Nombre_Ciudad'
         parametros = (departamento,)
         try:
             ciudades = [row[0] for row in self.run_Query(query, parametros)]
-            print(f'Ciudades encontradas: {ciudades}')
             return ciudades
         except sqlite3.OperationalError as e:
-            print(f'Error en la consulta SQL: {e}') #Mensaje de prueba
             return []
         
     def crear_Selector_Ciudad(self, event=None):
@@ -352,36 +344,36 @@ class Participantes:
         pre_cod_ciudad_text = None
 
         ventana = tk.Toplevel(self.win)
-        ventana.title("Seleccionar Ciudad")
-        ventana.geometry("400x300")
+        ventana.title('Seleccionar Ciudad')
+        ventana.geometry('400x300')
         ventana.transient(self.win) #Indica que la ventana depende de la principal
         
         #Frame para departamentos
         frmDepartamentos = ttk.Frame(ventana)
         frmDepartamentos.pack(side='left', fill='y', padx=5, pady=5)
 
-        ttk.Label(frmDepartamentos, text="Departamentos").pack()
+        ttk.Label(frmDepartamentos, text='Departamentos').pack()
         listboxDepartamentos = tk.Listbox(frmDepartamentos, width=25)
         listboxDepartamentos.pack(fill='y', expand=True)
 
         # Frame para ciudades
         frmCiudades = ttk.Frame(ventana)
-        frmCiudades.pack(side="right", fill="both", expand=True, padx=5, pady=5)
+        frmCiudades.pack(side='right', fill='both', expand=True, padx=5, pady=5)
     
-        ttk.Label(frmCiudades, text="Ciudades").pack()
+        ttk.Label(frmCiudades, text='Ciudades').pack()
         listboxCiudades = tk.Listbox(frmCiudades)
-        listboxCiudades.pack(fill="both", expand=True)
+        listboxCiudades.pack(fill='both', expand=True)
 
         # Botón Cancelar
-        btnCancelar = ttk.Button(ventana, text="Cancelar")
-        btnCancelar.pack(side="bottom", pady=5)
+        btnCancelar = ttk.Button(ventana, text='Cancelar')
+        btnCancelar.pack(side='bottom', pady=5)
         # Botón Seleccionar
-        btnSeleccionar = ttk.Button(ventana, text="Seleccionar", state='disabled')
-        btnSeleccionar.pack(side="bottom", pady=5)
+        btnSeleccionar = ttk.Button(ventana, text='Seleccionar', state='disabled')
+        btnSeleccionar.pack(side='bottom', pady=5)
     
         # Cargar departamentos
         for departamento in self.get_Departamentos():
-            listboxDepartamentos.insert("end", departamento)
+            listboxDepartamentos.insert('end', departamento)
     
         def seleccionar_Departamento(event):
             nonlocal pre_cod_departamento # permite modificar la variable pre_cod_departamento definida en crear_Selector_Ciudad
@@ -390,7 +382,7 @@ class Participantes:
             if seleccion_departamento:
                 # Si se selecciona otro departamento se deselecciona la ciudad
                 pre_cod_ciudad = None
-                btnSeleccionar.configure(state="disabled")
+                btnSeleccionar.configure(state='disabled')
 
                 departamento = listboxDepartamentos.get(seleccion_departamento[0])
 
@@ -415,7 +407,7 @@ class Participantes:
                 parametros = (pre_cod_departamento, ciudad)
                 pre_cod_ciudad = self.run_Query(query, parametros).fetchone()[0]
                 pre_cod_ciudad_text = ciudad
-                btnSeleccionar.configure(state="normal")
+                btnSeleccionar.configure(state='normal')
         
         def confirmar_Seleccion(event = None):
             if pre_cod_departamento is not None and pre_cod_ciudad is not None:
@@ -448,14 +440,12 @@ class Participantes:
             parametros = (self.entryId.get(), self.entryNombre.get(), self.entryDireccion.get(),
                           self.entryCelular.get(), self.entryEntidad.get(), self.entryFecha.get(),
                           self.cod_departamento, self.cod_ciudad)
-            print(self.cod_ciudad)
-            print(self.cod_departamento)
             if self.valida_Grabar():
                 self.run_Query(query, parametros)
                 self.limpia_Campos()
                 mssg.showinfo('',f'Registro: {self.entryId.get()} .. agregado')
             else:
-                mssg.showerror("¡ Atención !","No puede dejar la identificación vacía")
+                mssg.showerror('¡ Atención !','No puede dejar la identificación vacía')
         self.limpia_Campos()
         self.lee_tablaTreeView()
 
@@ -468,7 +458,7 @@ class Participantes:
             self.carga_Datos()
         except IndexError as error:
             self.actualiza = None
-            mssg.showerror("¡ Atención !",'Por favor seleccione un ítem de la tabla')
+            mssg.showerror('¡ Atención !','Por favor seleccione un ítem de la tabla')
             return
         
     def elimina_Registro(self, event=None):
@@ -480,6 +470,6 @@ class Participantes:
 
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app = Participantes()
     app.run() 
