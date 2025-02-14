@@ -531,11 +531,17 @@ class Participantes:
             return
         
     def elimina_Registro(self):
-        query = ('DELETE FROM t_participantes WHERE Id = ?')
-        parametros = (self.entryId.get(), )
-        self.run_Query(query, parametros)
-        mssg.showinfo('Eliminado', 'El registro fue eliminado')
-        self.lee_tablaTreeView() #REVISAR
+        if not self.treeDatos.selection(): #Verifica si la selección de la tabla esta vacía, osea, no ha seleccionado nada
+            mssg.showinfo('! Atención !', 'Por favor seleciones los items a eliminar de la tabla')
+        else:
+            query = ('DELETE FROM t_participantes WHERE Id = ?')
+            for param in self.treeDatos.selection(): #Bucle para que pueda borrar cada selección
+                parametros = (self.treeDatos.item(param)['text'], ) #Una selección que hace el usuario
+                self.run_Query(query, parametros)
+            
+            mssg.showinfo('Eliminado', 'Los registros seleccionados fueron eliminados')
+            self.lee_tablaTreeView() #Carga la tabla al treeview actualizada
+
 
 
 
