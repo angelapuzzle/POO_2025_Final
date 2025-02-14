@@ -12,6 +12,8 @@ class Participantes:
     program_icon = path + r'/ico_registro.ico'
     actualiza = None
     color_palette = {
+        'window_bg': '#d9f0f9',
+        'lblfrm_datos': '#EEEE00',
         'entry': '#FFFFFF'
     }
 
@@ -23,7 +25,7 @@ class Participantes:
         
              
         #Top Level - Configuración
-        self.win.configure(background='#d9f0f9', height='480', relief='flat', width='1024')
+        self.win.configure(background=self.color_palette['window_bg'], height='480', relief='flat', width='1024')
         self.win.geometry('1024x480')
         self.win.iconbitmap(self.program_icon)
         self.win.resizable(False, False)
@@ -35,16 +37,33 @@ class Participantes:
         
         #Label Frame
         self.lblfrm_Datos = tk.LabelFrame(self.win, labelanchor='n', font=('Helvetica',13,'bold'))
-        self.lblfrm_Datos.configure(height='370', relief='groove', text=' Inscripción ', width='280')
+        self.lblfrm_Datos.configure(background=self.color_palette['lblfrm_datos'], height='370', width='280', relief='groove', text=' Inscripción ')
         self.lblfrm_Datos.place(anchor='nw', relx='0.01', rely='0.04', x='0', y='0')
         self.lblfrm_Datos.grid_propagate(0)
         for i in range(7):
             self.lblfrm_Datos.rowconfigure(i, weight = 1)
+
+        #Diccionarios con la configuración general para todos los label y entries dentro de lblfrm_Datos
+        #Los background the los labels coinciden con el frame lblfrm_Datos
+        config_lbl_Datos = {
+            'background': self.color_palette['lblfrm_datos'],
+            'anchor': 'e',
+            'font': 'TkTextFont',
+            'justify': 'left'
+            }
+        config_entry_Datos = {
+            'background': self.color_palette['entry'],
+            'exportselection': 'false',
+            'justify': 'left',
+            'relief': 'groove',
+            'takefocus': True
+            }
+
         
         #Label Id
         self.lblId = ttk.Label(self.lblfrm_Datos)
-        self.lblId.configure(anchor='e', font='TkTextFont', justify='left', text='Identificación')
-        self.lblId.configure(width='12')
+        self.lblId.configure(config_lbl_Datos)
+        self.lblId.configure(text='Identificación', width='12')
         self.lblId.grid(column='0', padx='5', row='0', sticky='w')
         
         ### En lugar de hacer un bind, se crea un StringVar el cual ejecute la función de validación al cambiar su contenido
@@ -53,42 +72,41 @@ class Participantes:
         self.entryIdText = tk.StringVar()
         self.entryIdText.trace_add('write', self.valida_Identificacion)
         self.entryId = tk.Entry(self.lblfrm_Datos, textvariable=self.entryIdText)
-        self.entryId.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
-        self.entryId.configure(background=self.color_palette['entry'])
+        self.entryId.configure(config_entry_Datos)
+        self.entryId.configure(width=30)
         self.entryId.grid(column='1', row='0', sticky='w')
         
         
         #Label Nombre
         self.lblNombre = ttk.Label(self.lblfrm_Datos)
-        self.lblNombre.configure(anchor='e', font='TkTextFont', justify='left', text='Nombre')
-        self.lblNombre.configure(width='12')
+        self.lblNombre.configure(config_lbl_Datos)
+        self.lblNombre.configure(text='Nombre', width='12')
         self.lblNombre.grid(column='0', padx='5', row='1', sticky='w')
         
         
         #Entry Nombre
         self.entryNombreText = tk.StringVar()
         self.entryNombre = tk.Entry(self.lblfrm_Datos, textvariable=self.entryNombreText)
-        self.entryNombre.configure(exportselection='false', justify='left',relief='groove', takefocus=True, width='30')
-        self.entryNombre.configure(background=self.color_palette['entry'])
+        self.entryNombre.configure(config_entry_Datos)
+        self.entryNombre.configure(width=30)
         self.entryNombre.grid(column='1', row='1', sticky='w')
         
         #Label Ciudad
         self.lblCiudad = ttk.Label(self.lblfrm_Datos)
-        self.lblCiudad.configure(anchor='e', font='TkTextFont', justify='left', text='Ciudad')
-        self.lblCiudad.configure(width='12')
+        self.lblCiudad.configure(config_lbl_Datos)
+        self.lblCiudad.configure(text='Ciudad', width='12')
         self.lblCiudad.grid(column='0', padx='5', row='2', sticky='w')
 
-        #Frame Ciudad (background transparente)
-        self.frmCiudad = tk.Frame(self.lblfrm_Datos, background='')
+        #Frame Entry Ciudad (background coincide con lblfrmDatos)
+        self.frmCiudad = tk.Frame(self.lblfrm_Datos, background=self.color_palette['lblfrm_datos'])
         self.frmCiudad.grid(column='1', row='2', sticky='w')
-        
         
         #Entry Ciudad
         self.entryCiudadText = tk.StringVar()
         self.entryCiudadText.set('[Seleccionar]')
         self.entryCiudad = tk.Entry(self.frmCiudad, textvariable=self.entryCiudadText)
-        self.entryCiudad.configure(state='readonly', relief='groove', width='25')
-        self.entryCiudad.configure(background=self.color_palette['entry'], readonlybackground=self.color_palette['entry'])
+        self.entryCiudad.configure(config_entry_Datos)
+        self.entryCiudad.configure(width=25, state='readonly', readonlybackground=self.color_palette['entry']) # Aunque simulemos que está habilitado, en realidad no lo está
         self.entryCiudad.grid(column='0', row='0', sticky='w')
 
         # Botón de selección
@@ -98,64 +116,64 @@ class Participantes:
         
         #Label Direccion
         self.lblDireccion = ttk.Label(self.lblfrm_Datos)
-        self.lblDireccion.configure(anchor='e', font='TkTextFont', justify='left', text='Dirección')
-        self.lblDireccion.configure(width='12')
+        self.lblDireccion.configure(config_lbl_Datos)
+        self.lblDireccion.configure(text='Dirección', width='12')
         self.lblDireccion.grid(column='0', padx='5', row='3', sticky='w')
         
         #Entry Direccion
         self.entryDireccionText = tk.StringVar()
         self.entryDireccion = tk.Entry(self.lblfrm_Datos, textvariable=self.entryDireccionText)
-        self.entryDireccion.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
-        self.entryDireccion.configure(background=self.color_palette['entry'])
+        self.entryDireccion.configure(config_entry_Datos)
+        self.entryDireccion.configure(width=30)
         self.entryDireccion.grid(column='1', row='3', sticky='w')
         
         #Label Celular
         self.lblCelular = ttk.Label(self.lblfrm_Datos)
-        self.lblCelular.configure(anchor='e', font='TkTextFont', justify='left', text='Celular')
-        self.lblCelular.configure(width='12')
+        self.lblCelular.configure(config_lbl_Datos)
+        self.lblCelular.configure(text='Celular', width='12')
         self.lblCelular.grid(column='0', padx='5', row='4', sticky='w')
         
         #Entry Celular
         self.entryCelularText = tk.StringVar()
         self.entryCelular = tk.Entry(self.lblfrm_Datos, textvariable=self.entryCelularText)
-        self.entryCelular.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
-        self.entryCelular.configure(background=self.color_palette['entry'])
+        self.entryCelular.configure(config_entry_Datos)
+        self.entryCelular.configure(width=30)
         self.entryCelular.grid(column='1', row='4', sticky='w')
         
         #Label Entidad
         self.lblEntidad = ttk.Label(self.lblfrm_Datos)
-        self.lblEntidad.configure(anchor='e', font='TkTextFont', justify='left', text='Entidad')
-        self.lblEntidad.configure(width='12')
+        self.lblEntidad.configure(config_lbl_Datos)
+        self.lblEntidad.configure(text='Entidad', width='12')
         self.lblEntidad.grid(column='0', padx='5', row='5', sticky='w')
         
         #Entry Entidad
         self.entryEntidadText = tk.StringVar()
         self.entryEntidad = tk.Entry(self.lblfrm_Datos, textvariable=self.entryEntidadText)
-        self.entryEntidad.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
-        self.entryEntidad.configure(background=self.color_palette['entry'])
+        self.entryEntidad.configure(config_entry_Datos)
+        self.entryEntidad.configure(width=30)
         self.entryEntidad.grid(column='1', row='5', sticky='w')
         
         #Label Fecha
         self.lblFecha = ttk.Label(self.lblfrm_Datos)
-        self.lblFecha.configure(anchor='e', font='TkTextFont', justify='left', text='Fecha')
-        self.lblFecha.configure(width='12')
+        self.lblFecha.configure(config_lbl_Datos)
+        self.lblFecha.configure(text='Fecha', width='12')
         self.lblFecha.grid(column='0', padx='5', row='6', sticky='w')
         
         #Entry Fecha
         self.entryFechaText = tk.StringVar()
         self.entryFechaText.trace_add('write', self.valida_Fecha)
         self.entryFecha = tk.Entry(self.lblfrm_Datos, textvariable=self.entryFechaText)
-        self.entryFecha.configure(exportselection='false', justify='left', relief='groove', takefocus=True, width='30')
-        self.entryFecha.configure(background=self.color_palette['entry'])
+        self.entryFecha.configure(config_entry_Datos)
+        self.entryFecha.configure(width=30)
         self.entryFecha.grid(column='1', row='6', sticky='w')
         
-        #Frame Botones (background transparente)
-        self.frmBotones = tk.Frame(self.win, background='')
+        #Frame Botones (background coincide con la ventana)
+        self.frmBotones = tk.Frame(self.win, background=self.color_palette['window_bg'])
         self.frmBotones.place(anchor='nw', relx='0.005', rely='0.82', x='0', y='0')
         
         #Botón Grabar
         self.btnGrabar = ttk.Button(self.frmBotones)
-        self.btnGrabar.configure(state='normal', text='Grabar', width='9', command=self.adiciona_Registro)
+        self.btnGrabar.configure(text='Grabar', width='9', command=self.adiciona_Registro)
         self.btnGrabar.grid(column='0', row='0', sticky='n', padx='4', pady='4')
         
         #Botón Editar
