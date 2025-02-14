@@ -519,27 +519,38 @@ class Participantes:
         self.lee_tablaTreeView()
 
     def edita_tablaTreeView(self):
-        try:
-            # Carga los campos desde la tabla TreeView
-            self.treeDatos.item(self.treeDatos.selection())['text']
-            self.limpia_Campos()
-            self.actualiza = True # Esta variable controla la actualización
-            self.carga_Datos()
-        except IndexError as error:
-            self.actualiza = None
-            mssg.showerror('¡ Atención !','Por favor seleccione un ítem de la tabla')
-            return
+        #if len(self.treeDatos.selection()) > 1:
+            #print(len(self.treeDatos.selection()))
+            #raise mssg.showerror('¡ Atención !', 'Solo se puede editar un item a la vez')
+        #else:
+            try:
+                if len(self.treeDatos.selection()) > 1:
+                    temp = True
+                    raise IndexError
+                else:
+                    # Carga los campos desde la tabla TreeView
+                    self.treeDatos.item(self.treeDatos.selection())['text']
+                    self.limpia_Campos()
+                    self.actualiza = True # Esta variable controla la actualización
+                    self.carga_Datos()
+            except IndexError as error:
+                self.actualiza = None
+                if temp:
+                    mssg.showerror('¡ Atención !', 'Solo puede seleccionar un ítem a editar')
+                else:
+                    mssg.showerror('¡ Atención !','Por favor seleccione un ítem de la tabla')
+                return
         
     def elimina_Registro(self):
         if not self.treeDatos.selection(): #Verifica si la selección de la tabla esta vacía, osea, no ha seleccionado nada
-            mssg.showinfo('! Atención !', 'Por favor seleciones los items a eliminar de la tabla')
+            mssg.showinfo('¡ Atención !', 'Por favor seleciones los items a eliminar de la tabla')
         else:
             query = ('DELETE FROM t_participantes WHERE Id = ?')
             for param in self.treeDatos.selection(): #Bucle para que pueda borrar cada selección
                 parametros = (self.treeDatos.item(param)['text'], ) #Una selección que hace el usuario
                 self.run_Query(query, parametros)
             
-            mssg.showinfo('Eliminado', 'Los registros seleccionados fueron eliminados')
+            mssg.showerror('Eliminado', 'Los registros seleccionados fueron eliminados')
             self.lee_tablaTreeView() #Carga la tabla al treeview actualizada
 
 
