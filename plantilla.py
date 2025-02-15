@@ -6,7 +6,7 @@ from tkinter import messagebox as mssg
 import sqlite3
 
 class Participantes:
-    # nombre de la base de datos  y ruta 
+    # nombre de la base de datos y ruta 
     path = r'Resources'
     db_name = path + r'/Participantes.db'
     program_icon = path + r'/ico_registro.ico'
@@ -518,38 +518,29 @@ class Participantes:
         self.lee_tablaTreeView()
 
     def edita_tablaTreeView(self):
-        #if len(self.treeDatos.selection()) > 1:
-            #print(len(self.treeDatos.selection()))
-            #raise mssg.showerror('¡ Atención !', 'Solo se puede editar un item a la vez')
-        #else:
-            try:
-                if len(self.treeDatos.selection()) > 1:
-                    temp = True
-                    raise IndexError
-                else:
-                    # Carga los campos desde la tabla TreeView
-                    self.treeDatos.item(self.treeDatos.selection())['text']
-                    self.limpia_Campos()
-                    self.actualiza = True # Esta variable controla la actualización
-                    self.carga_Datos()
-            except IndexError as error:
-                self.actualiza = None
-                if temp:
-                    mssg.showerror('¡ Atención !', 'Solo puede seleccionar un ítem a editar')
-                else:
-                    mssg.showerror('¡ Atención !','Por favor seleccione un ítem de la tabla')
-                return
+        if len(self.treeDatos.selection()) == 0:
+            mssg.showerror('¡ Atención !', 'Por favor seleccione un ítem de la tabla')
+        elif len(self.treeDatos.selection()) > 1:
+            mssg.showerror('¡ Atención !', 'Solo puede seleccionar un ítem a editar')
+        else:
+            self.treeDatos.item(self.treeDatos.selection())['text']
+            self.limpia_Campos()
+            self.actualiza = True # Esta variable controla la actualización
+            self.carga_Datos()
         
     def elimina_Registro(self):
         if not self.treeDatos.selection(): #Verifica si la selección de la tabla esta vacía, osea, no ha seleccionado nada
-            mssg.showinfo('¡ Atención !', 'Por favor seleciones los items a eliminar de la tabla')
-        else:
+            mssg.showerror('¡ Atención !', 'Por favor seleccione los items a eliminar de la tabla')
+            return
+        
+        confirmation_msg = mssg.askyesno('', '¿Desea borrar los datos seleccionados?')
+        if confirmation_msg == True:
             query = ('DELETE FROM t_participantes WHERE Id = ?')
             for param in self.treeDatos.selection(): #Bucle para que pueda borrar cada selección
                 parametros = (self.treeDatos.item(param)['text'], ) #Una selección que hace el usuario
                 self.run_Query(query, parametros)
             
-            mssg.showerror('Eliminado', 'Los registros seleccionados fueron eliminados')
+            mssg.showinfo('Eliminado', 'Los registros seleccionados fueron eliminados')
             self.lee_tablaTreeView() #Carga la tabla al treeview actualizada
 
 
