@@ -250,13 +250,13 @@ class Participantes:
             conn.commit()
         return result
 
-    def lee_tablaTreeView(self): #MIRAR SI SE PUEDE OPTIMIZAR
+    def lee_tablaTreeView(self):
         ''' Carga los datos de la BD y Limpia la Tabla tablaTreeView '''
         tabla_TreeView = self.treeDatos.get_children()
         for linea in tabla_TreeView:
             self.treeDatos.delete(linea)
         # Seleccionando los datos de la BD, esta query usa un join para obtener el nombre de la ciudad a partir del código guardado en esta
-        query = 'SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha FROM t_participantes P LEFT JOIN t_ciudades C ON C.Id_Ciudad = P.Id_Ciudad ORDER BY Id DESC'
+        query = 'SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad ORDER BY Id DESC'
         db_rows = self.run_Query(query)
         # Insertando los datos de la BD en la tabla de la pantalla
         for row in db_rows:
@@ -304,13 +304,13 @@ class Participantes:
         self.entryFechaText.set(formatted_text)
         self.win.after(1, self.reset_cursor, self.entryFecha, cursor_pos)
     
-    '''Función utilizada para el botón editar, trae desde el treeview el participante seleccionado
+    '''Función utilizada para el boón editar, trae desde el treeview el participante seleccionado
         y lo carga en los entry '''
     def carga_Datos(self): 
         ''' Carga los datos en los campos desde el treeView'''
         #   Nuevo
         self.entryIdText.set(self.treeDatos.item(self.treeDatos.selection())['text']) #Aca, todo lo que habia se reemplaza por el texto nuevom si coloco insert, se acumulan
-        self.entryId.configure(state = 'readonly')#Deja id bloqueado para que no lo puedan editar  #REVISAR SI ESTE SOBRA
+        self.entryId.configure(state = 'readonly')#Deja id bloqueado para que no lo puedan editar
         #Carga los demás entries
         self.entryNombreText.set(self.treeDatos.item(self.treeDatos.selection())['values'][0])
         self.entryCiudadText.set(self.treeDatos.item(self.treeDatos.selection())['values'][1])
@@ -512,6 +512,7 @@ class Participantes:
             if self.valida_Grabar():
                 self.run_Query(query, parametros)
                 mssg.showinfo('',f'Registro con ID: {self.entryIdText.get()}, agregado')
+                self.limpia_Campos()
             else:
                 mssg.showerror('¡ Atención !','No puede dejar la identificación vacía')
         self.limpia_Campos()
