@@ -53,7 +53,7 @@ class Participantes:
             background=self.color_palette['lblfrm_datos'],
             anchor='e',
             font='TkTextFont',
-            justify='left',
+            justify='left'
         )
         self.styleApp.configure(
             'lblfrm_Datos.TButton',
@@ -262,9 +262,6 @@ class Participantes:
 
     def run(self):
         self.win.mainloop()
-
-    def reset_cursor(self, entry, index):
-        entry.icursor(index)
 
     def run_Query(self, query, parametros = ()):
         ''' Función para ejecutar los Querys a la base de datos ''' #Query es una indicación que le digo a sql
@@ -536,7 +533,6 @@ class Participantes:
             sig_anio = sig_anio + 1
 
         time_difference = date(sig_anio, sig_mes, 1) - date(anio, mes, 1)
-        print(time_difference.days)
         return time_difference.days
 
     def crear_Selector_Fecha(self):
