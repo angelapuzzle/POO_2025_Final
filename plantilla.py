@@ -52,9 +52,8 @@ class Participantes:
             'lblfrm_Datos.TLabel',
             background=self.color_palette['lblfrm_datos'],
             anchor='e',
-            #font='TkTextFont',
+            font='TkTextFont',
             justify='left',
-            font=('Calibri', 9)
         )
         self.styleApp.configure(
             'lblfrm_Datos.TButton',
