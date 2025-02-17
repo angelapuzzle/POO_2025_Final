@@ -12,10 +12,14 @@ class Participantes:
     db_name = path + r'/Participantes.db'
     program_icon = path + r'/ico_registro.ico'
     actualiza = None
+
+    
     color_palette = {
-        'window_bg': '#d9f0f9',
-        'lblfrm_datos': '#EEEE00',
-        'entry': '#FFFFFF'
+        'window_bg': '#EFF1F5',
+        'lblfrm_datos': '#E6E9EF',
+        'entry': '#EFF1F5',
+        'tabla_encabezado': '#7287FD',
+        'tabla_fondo': '#E6E9EF'
     }
 
     # Variables usadas para guardar información digitada por el usuario
@@ -35,26 +39,45 @@ class Participantes:
         self.win.resizable(False, False)
         self.win.title('Conferencia MACSS y la Ingeniería de Requerimientos')
         self.win.pack_propagate(0) 
+
+        self.win.tk.call("source", self.path + "/azure.tcl")
+        self.win.tk.call("set_theme", "light")
+
+        self.styleApp = ttk.Style()
+
+        self.styleApp.configure(
+            'main.TButton',
+            background=self.color_palette['window_bg'],
+        )
+
+        self.styleApp.configure(
+            'lblfrm_Datos.TLabel',
+            background=self.color_palette['lblfrm_datos'],
+            anchor='e',
+            #font='TkTextFont',
+            justify='left',
+            font=('Calibri', 9)
+        )
+        self.styleApp.configure(
+            'lblfrm_Datos.TButton',
+            background=self.color_palette['lblfrm_datos'],
+            
+        )
+
+
         
-        # Main widget
-        self.mainwindow = self.win
         
         #Label Frame
         self.lblfrm_Datos = tk.LabelFrame(self.win, labelanchor='n', font=('Helvetica',13,'bold'))
-        self.lblfrm_Datos.configure(background=self.color_palette['lblfrm_datos'], height='370', width='280', relief='groove', text=' Inscripción ')
+        self.lblfrm_Datos.configure(background=self.color_palette['lblfrm_datos'], relief='groove')
+        self.lblfrm_Datos.configure(height='370', width='280', text=' Inscripción ')
         self.lblfrm_Datos.place(anchor='nw', relx='0.01', rely='0.04', x='0', y='0')
         self.lblfrm_Datos.grid_propagate(0)
         for i in range(7):
             self.lblfrm_Datos.rowconfigure(i, weight = 1)
 
-        #Diccionarios con la configuración general para todos los label y entries dentro de lblfrm_Datos
-        #Los background the los labels coinciden con el frame lblfrm_Datos
-        config_lbl_Datos = {
-            'background': self.color_palette['lblfrm_datos'],
-            'anchor': 'e',
-            'font': 'TkTextFont',
-            'justify': 'left'
-            }
+        # Como el Entry de ttk se ve raro, y el de tk no tiene la opción de usar estilos,
+        # esto permite configurar los entry con las mismas opciones siempte
         config_entry_Datos = {
             'background': self.color_palette['entry'],
             'exportselection': 'false',
@@ -62,11 +85,9 @@ class Participantes:
             'relief': 'groove',
             'takefocus': True
             }
-
         
         #Label Id
-        self.lblId = ttk.Label(self.lblfrm_Datos)
-        self.lblId.configure(config_lbl_Datos)
+        self.lblId = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblId.configure(text='Identificación', width='12')
         self.lblId.grid(column='0', padx='5', row='0', sticky='w')
         
@@ -82,8 +103,7 @@ class Participantes:
         
         
         #Label Nombre
-        self.lblNombre = ttk.Label(self.lblfrm_Datos)
-        self.lblNombre.configure(config_lbl_Datos)
+        self.lblNombre = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblNombre.configure(text='Nombre', width='12')
         self.lblNombre.grid(column='0', padx='5', row='1', sticky='w')
         
@@ -96,8 +116,7 @@ class Participantes:
         self.entryNombre.grid(column='1', row='1', sticky='w')
         
         #Label Ciudad
-        self.lblCiudad = ttk.Label(self.lblfrm_Datos)
-        self.lblCiudad.configure(config_lbl_Datos)
+        self.lblCiudad = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblCiudad.configure(text='Ciudad', width='12')
         self.lblCiudad.grid(column='0', padx='5', row='2', sticky='w')
 
@@ -109,17 +128,16 @@ class Participantes:
         self.entryCiudadText = tk.StringVar()
         self.entryCiudadText.set('[Seleccionar]')
         self.entryCiudad = tk.Entry(self.frmCiudad, textvariable=self.entryCiudadText)
-        self.entryCiudad.configure(config_entry_Datos)
         self.entryCiudad.configure(width=25, state='readonly', readonlybackground=self.color_palette['entry']) # Aunque simulemos que está habilitado, en realidad no lo está
         self.entryCiudad.grid(column='0', row='0', sticky='w')
 
         # Botón de selección
-        self.btnSeleccionarCiudad = ttk.Button(self.frmCiudad, text='...', width=2, command=self.crear_Selector_Ciudad)
+        self.btnSeleccionarCiudad = ttk.Button(self.frmCiudad, style='lblfrm_Datos.TButton')
+        self.btnSeleccionarCiudad.configure(text='...', width=2, command=self.crear_Selector_Ciudad)
         self.btnSeleccionarCiudad.grid(column='1', row='0', padx=5)
         
         #Label Direccion
-        self.lblDireccion = ttk.Label(self.lblfrm_Datos)
-        self.lblDireccion.configure(config_lbl_Datos)
+        self.lblDireccion = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblDireccion.configure(text='Dirección', width='12')
         self.lblDireccion.grid(column='0', padx='5', row='3', sticky='w')
         
@@ -131,8 +149,7 @@ class Participantes:
         self.entryDireccion.grid(column='1', row='3', sticky='w')
         
         #Label Celular
-        self.lblCelular = ttk.Label(self.lblfrm_Datos)
-        self.lblCelular.configure(config_lbl_Datos)
+        self.lblCelular = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblCelular.configure(text='Celular', width='12')
         self.lblCelular.grid(column='0', padx='5', row='4', sticky='w')
         
@@ -144,8 +161,7 @@ class Participantes:
         self.entryCelular.grid(column='1', row='4', sticky='w')
         
         #Label Entidad
-        self.lblEntidad = ttk.Label(self.lblfrm_Datos)
-        self.lblEntidad.configure(config_lbl_Datos)
+        self.lblEntidad = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblEntidad.configure(text='Entidad', width='12')
         self.lblEntidad.grid(column='0', padx='5', row='5', sticky='w')
         
@@ -157,8 +173,7 @@ class Participantes:
         self.entryEntidad.grid(column='1', row='5', sticky='w')
         
         #Label Fecha
-        self.lblFecha = ttk.Label(self.lblfrm_Datos)
-        self.lblFecha.configure(config_lbl_Datos)
+        self.lblFecha = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblFecha.configure(text='Fecha', width='12')
         self.lblFecha.grid(column='0', padx='5', row='6', sticky='w')
 
@@ -175,7 +190,8 @@ class Participantes:
         self.entryFecha.grid(column='0', row='0', sticky='w')
 
         # Botón de selección
-        self.btnSeleccionarCiudad = ttk.Button(self.frmFecha, text='...', width=2, command=self.crear_Selector_Fecha)
+        self.btnSeleccionarCiudad = ttk.Button(self.frmFecha, style='lblfrm_Datos.TButton')
+        self.btnSeleccionarCiudad.configure(text='...', width=2, command=self.crear_Selector_Fecha)
         self.btnSeleccionarCiudad.grid(column='1', row='0', padx=5)
         
         #Frame Botones (background coincide con la ventana)
@@ -183,35 +199,35 @@ class Participantes:
         self.frmBotones.place(anchor='nw', relx='0.005', rely='0.82', x='0', y='0')
         
         #Botón Grabar
-        self.btnGrabar = ttk.Button(self.frmBotones)
+        self.btnGrabar = ttk.Button(self.frmBotones, style='main.TButton')
         self.btnGrabar.configure(text='Grabar', width='9', command=self.adiciona_Registro)
         self.btnGrabar.grid(column='0', row='0', sticky='n', padx='4', pady='4')
         
         #Botón Editar
-        self.btnEditar = ttk.Button(self.frmBotones)        
+        self.btnEditar = ttk.Button(self.frmBotones, style='main.TButton')        
         self.btnEditar.configure(text='Editar', width='9', command=self.edita_tablaTreeView)
         self.btnEditar.grid(column='1', row='0', sticky='n', padx='4', pady='4')
         
         #Botón Eliminar
-        self.btnEliminar = ttk.Button(self.frmBotones)
+        self.btnEliminar = ttk.Button(self.frmBotones, style='main.TButton')
         self.btnEliminar.configure(text='Eliminar', width='9', command=self.elimina_Registro)
         self.btnEliminar.grid(column='2', row='0', sticky='n', padx='4', pady='4')
         
         #Botón Cancelar
-        self.btnCancelar = ttk.Button(self.frmBotones)
+        self.btnCancelar = ttk.Button(self.frmBotones, style='main.TButton')
         self.btnCancelar.configure(text='Cancelar', width='9', command=self.limpia_Campos)
         self.btnCancelar.grid(column='3', row='0', sticky='n', padx='4', pady='4')
         
         #Botón Consultar
-        self.btnConsultar = ttk.Button(self.frmBotones)
+        self.btnConsultar = ttk.Button(self.frmBotones, style='main.TButton')
         self.btnConsultar.configure(text='Consultar', width='9') #command = Función
         self.btnConsultar.grid(column='1', columnspan=2, row='1', sticky='n', padx='4', pady='4')
         
         
         #tablaTreeView
         self.style=ttk.Style()
-        self.style.configure('estilo.Treeview', highlightthickness=0, bd=0, background='AliceBlue', font=('Calibri Light',10))
-        self.style.configure('estilo.Treeview.Heading', background='Azure', font=('Calibri Light', 10,'bold')) 
+        self.style.configure('estilo.Treeview', highlightthickness=0, bd=0, background=self.color_palette['tabla_fondo'], font=('Calibri Light',10))
+        self.style.configure('estilo.Treeview.Heading', background=self.color_palette['tabla_encabezado'], font=('Calibri Light', 10,'bold')) 
         self.style.layout('estilo.Treeview', [('estilo.Treeview.treearea', {'sticky': 'nswe'})])
 
         self.treeDatos = ttk.Treeview(self.win, style='estilo.Treeview')
@@ -248,7 +264,7 @@ class Participantes:
 
 
     def run(self):
-        self.mainwindow.mainloop()
+        self.win.mainloop()
 
     def reset_cursor(self, entry, index):
         entry.icursor(index)
