@@ -286,9 +286,19 @@ class Participantes:
                     fecha = 'Invalida'
             self.treeDatos.insert('',0, text = row[0], values = [row[1],ciudad,row[3],row[4],row[5],fecha])
 
-    def valida_Grabar(self):
-        '''Valida que el Id no esté vacio, devuelve True si ok'''
-        return (len(self.entryId.get()) != 0 )  
+    def valida_Grabar(self): #recordemos también borrar espacios para que no ocupe espacios en la memoría y validación celular
+        '''Valida que el Id no esté vacio, devuelve True si ok''' #El cambio que hice en la validación es porque tiraba error en la terminal cuando se escribía un id en el entry que ya existía
+        if (len(self.entryId.get()) == 0 ):
+            return False
+        else:
+            tabla_TreeView = self.treeDatos.get_children()
+            for linea in tabla_TreeView:
+                if (int(self.entryId.get())) == self.treeDatos.item(linea)['text']:
+                    return False
+            return True
+
+
+            
 
     def valida_Identificacion(self, var, index, mode):
         text = self.entryIdText.get()
@@ -633,18 +643,19 @@ class Participantes:
                           self.cod_ciudad, self.entryId.get())
             self.run_Query(query, parametros)
             mssg.showinfo('Ok', 'Registro actualizado con éxito')
+            self.limpia_Campos()
         else:
-            query = 'INSERT INTO t_participantes(Id, Nombre, Direccion, Celular, Entidad, Fecha, Id_Departamento, Id_Ciudad) VALUES(?, ?, ?, ?, ?, ?, ?, ?)'
-            parametros = (self.entryId.get(), self.entryNombre.get(), self.entryDireccion.get(),
+            if self.valida_Grabar(): #revisar reumen del commit
+                query = 'INSERT INTO t_participantes(Id, Nombre, Direccion, Celular, Entidad, Fecha, Id_Departamento, Id_Ciudad) VALUES(?, ?, ?, ?, ?, ?, ?, ?)'
+                parametros = (self.entryId.get(), self.entryNombre.get(), self.entryDireccion.get(),
                           self.entryCelular.get(), self.entryEntidad.get(), fecha_sql,
                           self.cod_departamento, self.cod_ciudad)
-            if self.valida_Grabar():
                 self.run_Query(query, parametros)
                 mssg.showinfo('',f'Registro con ID: {self.entryIdText.get()}, agregado')
                 self.limpia_Campos()
             else:
-                mssg.showerror('¡ Atención !','No puede dejar la identificación vacía')
-        self.limpia_Campos()
+                mssg.showerror('¡ Atención !','No puede crear una identificación existente o dejarla vacía')
+
         self.lee_tablaTreeView()
 
     def edita_tablaTreeView(self):
