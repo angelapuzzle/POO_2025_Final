@@ -40,8 +40,6 @@ class Participantes:
         self.win.title('Conferencia MACSS y la Ingeniería de Requerimientos')
         self.win.pack_propagate(0) 
 
-        self.win.tk.call("source", self.path + "/azure.tcl")
-        self.win.tk.call("set_theme", "light")
 
         self.styleApp = ttk.Style()
 
