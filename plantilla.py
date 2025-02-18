@@ -5,6 +5,7 @@ import tkinter.ttk as ttk
 from tkinter import messagebox as mssg
 import sqlite3
 from datetime import date, datetime
+import re
 
 class Participantes:
     # nombre de la base de datos y ruta 
@@ -107,6 +108,7 @@ class Participantes:
         
         #Entry Nombre
         self.entryNombreText = tk.StringVar()
+        self.entryNombreText.trace_add('write', self.valida_Nombre)
         self.entryNombre = tk.Entry(self.lblfrm_Datos, textvariable=self.entryNombreText)
         self.entryNombre.configure(config_entry_Datos)
         self.entryNombre.configure(width=30)
@@ -140,6 +142,7 @@ class Participantes:
         
         #Entry Direccion
         self.entryDireccionText = tk.StringVar()
+        self.entryDireccionText.trace_add('write', self.valida_Direccion)
         self.entryDireccion = tk.Entry(self.lblfrm_Datos, textvariable=self.entryDireccionText)
         self.entryDireccion.configure(config_entry_Datos)
         self.entryDireccion.configure(width=30)
@@ -313,11 +316,7 @@ class Participantes:
     def valida_Identificacion(self, var, index, mode):
         text = self.entryIdText.get()
 
-        #Crea una copia filtrada del texto para solo mantener los carácteres númericos
-        filtered_text = ''
-        for char in text:
-            if char in {'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'}:
-                filtered_text += char
+        filtered_text = re.sub(r'[^\d]', '', text)
 
         #Si el texto supera los 15 carácteres mostrar un mensaje
         if len(filtered_text) > 15:
@@ -325,6 +324,22 @@ class Participantes:
 
         #Pone en la StringVar el texto filtrado recortado a los primeros 15 caracteres
         self.entryIdText.set(filtered_text[0:15])
+
+    def valida_Nombre(self, var, index, mode):
+        text = self.entryNombreText.get()
+
+        filtered_text = text.lstrip()
+
+        filtered_text = re.sub(r'[^\w\d ]', '', filtered_text, flags=re.I)
+
+        self.entryNombreText.set(filtered_text) 
+
+    def valida_Direccion(self, var, index, mode):
+        text = self.entryDireccionText.get()
+
+        filtered_text = text.lstrip()
+
+        self.entryDireccionText.set(filtered_text)
 
     
     '''Función utilizada para el boón editar, trae desde el treeview el participante seleccionado
@@ -533,6 +548,10 @@ class Participantes:
             sig_anio = sig_anio + 1
 
         time_difference = date(sig_anio, sig_mes, 1) - date(anio, mes, 1)
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         return time_difference.days
 
     def crear_Selector_Fecha(self):
@@ -622,7 +641,7 @@ class Participantes:
             elif date(sel_anio, sel_mes, sel_dia) < date(current_year, 1, 1):
                 mssg.showerror('¡ Atención !', f'No se puede seleccionar una fecha antes de {current_year}')
             else:
-                self.sel_fecha = datetime(sel_anio, sel_mes, sel_dia)
+                self.sel_fecha = date(sel_anio, sel_mes, sel_dia)
                 self.entryFechaText.set(self.sel_fecha.strftime('%d/%m/%Y'))
                 ventana.destroy()
 
