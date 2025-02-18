@@ -160,7 +160,7 @@ class Participantes:
         ### y este StringVar se asocia con el Entry
         #Entry Id
         self.entryIdText = tk.StringVar()
-        self.entryIdText.trace_add('write', self.valida_Identificacion)
+        self.entryIdText.trace_add('write', self.valida_Campo_Identificacion)
         self.entryId = tk.Entry(self.lblfrm_Datos, textvariable=self.entryIdText)
         self.entryId.configure(config_entry_Datos)
         self.entryId.configure(width=30)
@@ -175,7 +175,7 @@ class Participantes:
         
         #Entry Nombre
         self.entryNombreText = tk.StringVar()
-        self.entryNombreText.trace_add('write', self.valida_Nombre)
+        self.entryNombreText.trace_add('write', self.valida_Campo_Nombre)
         self.entryNombre = tk.Entry(self.lblfrm_Datos, textvariable=self.entryNombreText)
         self.entryNombre.configure(config_entry_Datos)
         self.entryNombre.configure(width=30)
@@ -209,7 +209,7 @@ class Participantes:
         
         #Entry Direccion
         self.entryDireccionText = tk.StringVar()
-        self.entryDireccionText.trace_add('write', self.valida_Direccion)
+        self.entryDireccionText.trace_add('write', self.valida_Campo_Direccion)
         self.entryDireccion = tk.Entry(self.lblfrm_Datos, textvariable=self.entryDireccionText)
         self.entryDireccion.configure(config_entry_Datos)
         self.entryDireccion.configure(width=30)
@@ -363,7 +363,7 @@ class Participantes:
 
             
 
-    def valida_Identificacion(self, var, index, mode):
+    def valida_Campo_Identificacion(self, var, index, mode):
         text = self.entryIdText.get()
 
         filtered_text = re.sub(r'[^\d]', '', text)
@@ -375,7 +375,7 @@ class Participantes:
         #Pone en la StringVar el texto filtrado recortado a los primeros 15 caracteres
         self.entryIdText.set(filtered_text[0:15])
 
-    def valida_Nombre(self, var, index, mode):
+    def valida_Campo_Nombre(self, var, index, mode):
         text = self.entryNombreText.get()
 
         filtered_text = text.lstrip()
@@ -384,7 +384,7 @@ class Participantes:
 
         self.entryNombreText.set(filtered_text) 
 
-    def valida_Direccion(self, var, index, mode):
+    def valida_Campo_Direccion(self, var, index, mode):
         text = self.entryDireccionText.get()
 
         filtered_text = text.lstrip()
@@ -710,17 +710,36 @@ class Participantes:
 
     def valida_Grabar(self):
         '''Valida que el Id y la fecha no estén vacios, si el Id está vacio devuelve False,
-        si la fecha está vacía muestra un mensaje '''
+        si la fecha está vacía muestra un mensaje y la pone por defecto como el día actual
+        
+        También valida si el número de celular se escribió de forma incompleta'''
 
         # Validación identificación
-        if (len(self.entryId.get()) == 0 ):
+        if (len(self.entryIdText.get()) == 0 ):
+            mssg.showerror('¡ Atención !', 'No se puede dejar la identificación vacía')
             return False
-        else:
-            tabla_TreeView = self.treeDatos.get_children()
-            for linea in tabla_TreeView:
-                if (int(self.entryId.get())) == self.treeDatos.item(linea)['text']:
-                    return False
-            return True
+        #La validación de ID repetida solo debe hacerse si es un dato nuevo, no tiene sentido hacerla en Editar
+        elif not self.actualiza:
+            query = 'SELECT Id FROM t_participantes WHERE Id = ?'
+            parametros = (self.entryIdText.get(), )
+            # Si al ejecutar el query encuentra algo, significa que el Id ya está en la tabla
+            if self.run_Query(query, parametros).fetchone() is not None:
+                mssg.showerror('¡ Atención !', f'La ID {self.entryIdText.get()} ya ha sido registrada anteriormente')
+                return False
+
+        # Validación celular
+        if len(self.entryCelularText.get()) != 0 and len(self.entryCelularText.get()) < 10:
+            mssg.showerror('¡ Atención !', f'El número de celular {self.entryCelularText.get()} no es valido')
+            return False
+        
+        # Validación fecha
+        if self.sel_fecha is None:
+            text_fecha = date.today().strftime('%d/%m/%Y')
+            mssg.showinfo('', f'No se ha seleccionado una fecha, los datos se guardarán con la fecha {text_fecha}')
+            self.sel_fecha = date.today()
+
+        return True
+        
 
     def adiciona_Registro(self):
         '''Adiciona un producto a la BD si la validación es True'''
@@ -730,28 +749,25 @@ class Participantes:
         else:
             fecha_sql = None
         
-        if self.actualiza:
-            self.actualiza = None #REVISION
-            self.entryId.configure(state = 'readonly')
-            query = 'UPDATE t_participantes SET Nombre = ?, Direccion = ?, Celular = ?, Entidad = ?, Fecha = ?, Id_Departamento = ?, Id_Ciudad = ? WHERE Id = ?'
-            parametros = (self.entryNombre.get(), self.entryDireccion.get(), self.entryCelular.get(),
-                          self.entryEntidad.get(), fecha_sql, self.cod_departamento,
-                          self.cod_ciudad, self.entryId.get())
-            self.run_Query(query, parametros)
-            mssg.showinfo('Ok', 'Registro actualizado con éxito')
-            self.limpia_Campos()
-        else:
-
-            if self.valida_Grabar(): #revisar reumen del commit
+        if self.valida_Grabar():
+            if self.actualiza:
+                self.actualiza = None
+                self.entryId.configure(state = 'readonly')
+                query = 'UPDATE t_participantes SET Nombre = ?, Direccion = ?, Celular = ?, Entidad = ?, Fecha = ?, Id_Departamento = ?, Id_Ciudad = ? WHERE Id = ?'
+                parametros = (self.entryNombre.get(), self.entryDireccion.get(), self.entryCelular.get(),
+                            self.entryEntidad.get(), fecha_sql, self.cod_departamento,
+                            self.cod_ciudad, self.entryId.get())
+                self.run_Query(query, parametros)
+                mssg.showinfo('Ok', 'Registro actualizado con éxito')
+                self.limpia_Campos()
+            else:
                 query = 'INSERT INTO t_participantes(Id, Nombre, Direccion, Celular, Entidad, Fecha, Id_Departamento, Id_Ciudad) VALUES(?, ?, ?, ?, ?, ?, ?, ?)'
                 parametros = (self.entryId.get(), self.entryNombre.get(), self.entryDireccion.get(),
-                          self.entryCelular.get(), self.entryEntidad.get(), fecha_sql,
-                          self.cod_departamento, self.cod_ciudad)
+                            self.entryCelular.get(), self.entryEntidad.get(), fecha_sql,
+                            self.cod_departamento, self.cod_ciudad)
                 self.run_Query(query, parametros)
                 mssg.showinfo('',f'Registro con ID: {self.entryIdText.get()}, agregado')
                 self.limpia_Campos()
-            else:
-                mssg.showerror('¡ Atención !','No puede crear una identificación existente o dejarla vacía')
 
         self.lee_tablaTreeView()
 
