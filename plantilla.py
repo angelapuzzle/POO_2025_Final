@@ -17,10 +17,15 @@ class Participantes:
     
     color_palette = {
         'window_bg': '#EFF1F5',
+        'hover_button': '#d1ddf5',
         'lblfrm_datos': '#E6E9EF',
-        'entry': '#EFF1F5',
+        'entry': '#faf8fc',
+        'ronly_entry': '#efedf0',
         'tabla_encabezado': '#7287FD',
-        'tabla_fondo': '#E6E9EF'
+        'tabla_fondo': '#E6E9EF',
+        'scroll_primary_a': '#a0a0a0',
+        'scroll_primary_i': '#cfcfcf',
+        'scroll_secondary': '#faf4ed'
     }
 
     # Variables usadas para guardar información digitada por el usuario
@@ -42,28 +47,100 @@ class Participantes:
         self.win.pack_propagate(0) 
 
 
-        self.styleApp = ttk.Style()
+        self.style = ttk.Style()
 
-        self.styleApp.configure(
-            'main.TButton',
+        self.style.theme_use('clam')
+
+        # Detalles sobre los map:
+        # active es cuando el mouse está encima del cursor
+
+        self.style.configure(
+            'main.TLabel',
             background=self.color_palette['window_bg'],
         )
 
-        self.styleApp.configure(
+        self.style.configure(
+            'main.TButton',
+            background=self.color_palette['window_bg'],
+            padding=(2, 2)
+        )
+        self.style.map(
+            'main.TButton',
+            background=[('pressed', 'darkblue'), ('active', self.color_palette['hover_button'])]
+        )
+
+        self.style.configure(
+            'main.TCombobox',
+            background=self.color_palette['window_bg'],
+        )
+        self.style.map(
+            'main.TCombobox',
+            fieldbackground=[('disabled', self.color_palette['entry'])],
+            background=[('active', self.color_palette['hover_button'])],
+            foreground=[('selected', '#000000')]
+        )
+
+        self.style.configure(
             'lblfrm_Datos.TLabel',
             background=self.color_palette['lblfrm_datos'],
             anchor='e',
             font='TkTextFont',
             justify='left'
         )
-        self.styleApp.configure(
+        self.style.configure(
             'lblfrm_Datos.TButton',
             background=self.color_palette['lblfrm_datos'],
-            
+            padding=(2, 0) 
+        )
+
+        self.style.configure(
+            'main.Treeview',
+            highlightthickness=0,
+            bd=0,
+            background=self.color_palette['tabla_fondo'],
+            font=('Calibri Light',10)
+        )
+        
+        self.style.configure(
+            'main.Treeview.Heading',
+            relief='flat',
+            padding=0,
+            background=self.color_palette['tabla_encabezado'],
+            font=('Calibri Light', 10,'bold')
+        
+        ) 
+        self.style.layout(
+            'main.Treeview',
+            [('main.Treeview.treearea', {'sticky': 'nswe'})]
         )
 
 
-        
+        # Esto cambiará la scrollbar por defecto, no es recomendable pero estamos forzado a hacerlo
+        # puesto que no se puede cambiar el estilo del scrollbar del combobox mediante python
+        self.style.configure(
+            'Vertical.TScrollbar',
+            troughcolor=self.color_palette['scroll_secondary'],
+            bordercolor=self.color_palette['scroll_secondary'],
+            background=self.color_palette['scroll_primary_i'], #color de la barrita en realidad
+            gripcount=0,
+        )
+
+        self.style.map('Vertical.TScrollbar',
+            #El orden afecta la prioridad
+            background=[('disabled', self.color_palette['scroll_secondary']), ('active', self.color_palette['scroll_primary_a'])],
+        )
+
+        # Como el Entry de ttk se ve raro, y el de tk no tiene la opción de usar estilos,
+        # esto permite configurar los entry con las mismas opciones siempte
+        config_entry_Datos = {
+            'background': self.color_palette['entry'],
+            'readonlybackground': self.color_palette['ronly_entry'],
+            'exportselection': 'false',
+            'justify': 'left',
+            'relief': 'groove',
+            'takefocus': True
+        }
+
         
         #Label Frame
         self.lblfrm_Datos = tk.LabelFrame(self.win, labelanchor='n', font=('Helvetica',13,'bold'))
@@ -74,16 +151,6 @@ class Participantes:
         for i in range(7):
             self.lblfrm_Datos.rowconfigure(i, weight = 1)
 
-        # Como el Entry de ttk se ve raro, y el de tk no tiene la opción de usar estilos,
-        # esto permite configurar los entry con las mismas opciones siempte
-        config_entry_Datos = {
-            'background': self.color_palette['entry'],
-            'exportselection': 'false',
-            'justify': 'left',
-            'relief': 'groove',
-            'takefocus': True
-            }
-        
         #Label Id
         self.lblId = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblId.configure(text='Identificación', width='12')
@@ -225,15 +292,10 @@ class Participantes:
         
         
         #tablaTreeView
-        self.style=ttk.Style()
-        self.style.configure('estilo.Treeview', highlightthickness=0, bd=0, background=self.color_palette['tabla_fondo'], font=('Calibri Light',10))
-        self.style.configure('estilo.Treeview.Heading', background=self.color_palette['tabla_encabezado'], font=('Calibri Light', 10,'bold')) 
-        self.style.layout('estilo.Treeview', [('estilo.Treeview.treearea', {'sticky': 'nswe'})])
-
-        self.treeDatos = ttk.Treeview(self.win, style='estilo.Treeview')
+        self.treeDatos = ttk.Treeview(self.win, style='main.Treeview')
         self.treeDatos.place(anchor='nw', height='400', rely='0.04', width='700', x='300', y='0')
 
-       # Etiquetas de las columnas
+        #Etiquetas de las columnas
         self.treeDatos['columns']=('Nombre','Ciudad','Dirección','Celular','Entidad','Fecha')
         # Determina el espacio a mostrar que ocupa el código
         self.treeDatos.column('#0',         stretch='true',             width=15) # #0 se refiere a que es la primera columna y no se puede cambiar.
@@ -245,7 +307,7 @@ class Participantes:
         self.treeDatos.column('Fecha',      stretch='true',             width=12)
         
 
-       #Encabezados de las columnas de la pantalla
+        #Encabezados de las columnas de la pantalla
         self.treeDatos.heading('#0',       text = 'Id')
         self.treeDatos.heading('Nombre',   text = 'Nombre')
         self.treeDatos.heading('Ciudad',   text = 'Ciudad')
@@ -295,21 +357,9 @@ class Participantes:
                     # Si hay una fecha valida la convierte a DD/MM/AAAA
                     fecha = datetime.strptime(fecha, '%Y-%m-%d').strftime('%d/%m/%Y')
                 except ValueError:
-                    # Si hay una fecha invalida pone el texto como 'Invalida'abs
+                    # Si hay una fecha invalida pone el texto como 'Invalida'
                     fecha = 'Invalida'
             self.treeDatos.insert('',0, text = row[0], values = [row[1],ciudad,row[3],row[4],row[5],fecha])
-
-    def valida_Grabar(self): #recordemos también borrar espacios para que no ocupe espacios en la memoría y validación celular
-        '''Valida que el Id no esté vacio, devuelve True si ok''' #El cambio que hice en la validación es porque tiraba error en la terminal cuando se escribía un id en el entry que ya existía
-        if (len(self.entryId.get()) == 0 ):
-            return False
-        else:
-            tabla_TreeView = self.treeDatos.get_children()
-            for linea in tabla_TreeView:
-                if (int(self.entryId.get())) == self.treeDatos.item(linea)['text']:
-                    return False
-            return True
-
 
             
 
@@ -394,15 +444,6 @@ class Participantes:
         self.cod_ciudad = None
         self.sel_fecha = None
     
-
-    def get_Departamentos(self):
-        query = 'SELECT DISTINCT Nombre_Departamento FROM t_ciudades ORDER BY Nombre_Departamento'
-        return [row[0] for row in self.run_Query(query)]
-
-    def get_Ciudades_Por_Departamento(self, departamento):
-        query = 'SELECT Nombre_Ciudad FROM t_ciudades WHERE Nombre_Departamento = ? ORDER BY Nombre_Ciudad'
-        parametros = (departamento,)
-        return [row[0] for row in self.run_Query(query, parametros)]
         
     def crear_Selector_Ciudad(self):
         pre_cod_departamento = None
@@ -410,41 +451,54 @@ class Participantes:
         pre_cod_ciudad = None
         pre_cod_ciudad_text = None
 
-        ventana = tk.Toplevel(self.win)
+        ventana = tk.Toplevel(self.win, background=self.color_palette['window_bg'])
         ventana.title('Seleccionar Ciudad')
         ventana.geometry('420x320')
         ventana.transient(self.win) #Indica que la ventana depende de la principal
 
         #Label mostrando la selección actual
-        lblSeleccion = ttk.Label(ventana, anchor='center', text='Ciudad seleccionada: ')
+        lblSeleccion = ttk.Label(ventana, style='main.TLabel')
+        lblSeleccion.configure(anchor='center', text='Ciudad seleccionada: ')
         lblSeleccion.pack(side='top', fill='x', padx=5, pady=5)
         
         #Frame para departamentos
-        frmDepartamentos = ttk.Frame(ventana)
+        frmDepartamentos = tk.Frame(ventana, background=self.color_palette['window_bg'])
         frmDepartamentos.pack(side='left', fill='y', padx=5, pady=5)
 
-        ttk.Label(frmDepartamentos, text='Departamentos').pack()
-        listboxDepartamentos = tk.Listbox(frmDepartamentos, width=25)
+        lblDepartamentos = ttk.Label(frmDepartamentos, style='main.TLabel')
+        lblDepartamentos.configure(text='Departamentos')
+        lblDepartamentos.pack()
+        listboxDepartamentos = tk.Listbox(frmDepartamentos, width=25, background=self.color_palette['entry'])
         listboxDepartamentos.pack(fill='y', expand=True)
 
         # Frame para ciudades
-        frmCiudades = ttk.Frame(ventana)
+        frmCiudades = tk.Frame(ventana, background=self.color_palette['window_bg'])
         frmCiudades.pack(side='right', fill='both', expand=True, padx=5, pady=5)
     
-        ttk.Label(frmCiudades, text='Ciudades').pack()
-        listboxCiudades = tk.Listbox(frmCiudades)
+        lblCiudades = ttk.Label(frmCiudades, style='main.TLabel')
+        lblCiudades.configure(text='Ciudades')
+        lblCiudades.pack()
+        listboxCiudades = tk.Listbox(frmCiudades, background=self.color_palette['entry'])
         listboxCiudades.pack(fill='both', expand=True)
 
         # Botón Cancelar
-        btnCancelar = ttk.Button(ventana, text='Cancelar')
+        btnCancelar = ttk.Button(ventana, text='Cancelar', style='main.TButton')
         btnCancelar.pack(side='bottom', pady=5)
         # Botón Seleccionar
-        btnSeleccionar = ttk.Button(ventana, text='Seleccionar', state='disabled')
+        btnSeleccionar = ttk.Button(ventana, text='Seleccionar', state='disabled', style='main.TButton')
         btnSeleccionar.pack(side='bottom', pady=5)
     
+        def get_Departamentos():
+            query = 'SELECT DISTINCT Nombre_Departamento FROM t_ciudades ORDER BY Nombre_Departamento'
+            return [row[0] for row in self.run_Query(query)]
+
+        def get_Ciudades_Por_Departamento(departamento):
+            query = 'SELECT Nombre_Ciudad FROM t_ciudades WHERE Nombre_Departamento = ? ORDER BY Nombre_Ciudad'
+            parametros = (departamento,)
+            return [row[0] for row in self.run_Query(query, parametros)]
     
         def cargar_Lista_Departamentos(seleccion_departamento = None):
-            departamentos = self.get_Departamentos()
+            departamentos = get_Departamentos()
             for departamento in departamentos:
                 listboxDepartamentos.insert('end', departamento)
             if seleccion_departamento is not None:
@@ -454,7 +508,7 @@ class Participantes:
                 listboxDepartamentos.activate(index_departamento)
 
         def cargar_Lista_Ciudades(departamento, seleccion_ciudad = None):
-            ciudades = self.get_Ciudades_Por_Departamento(departamento)
+            ciudades = get_Ciudades_Por_Departamento(departamento)
             listboxCiudades.delete(0, 'end')
             for ciudad in ciudades:
                 listboxCiudades.insert('end', ciudad)
@@ -538,20 +592,20 @@ class Participantes:
         btnCancelar.configure(command=ventana.destroy)
         btnSeleccionar.configure(command=confirmar_Seleccion)
 
-    def num_Dias_Mes(self, anio, mes):
-        '''Devuelve la cantidad de dias entre el primer dia del mes y el primer dia del mes siguiente'''
-        sig_mes = mes + 1
-        sig_anio = anio
-        
-        if mes == 12:
-            sig_mes = 1
-            sig_anio = sig_anio + 1
-
-        time_difference = date(sig_anio, sig_mes, 1) - date(anio, mes, 1)
-        print(time_difference.days)
-        return time_difference.days
 
     def crear_Selector_Fecha(self):
+        def num_Dias_Mes(anio, mes):
+            '''Devuelve la cantidad de dias entre el primer dia del mes y el primer dia del mes siguiente'''
+            sig_mes = mes + 1
+            sig_anio = anio
+            
+            if mes == 12:
+                sig_mes = 1
+                sig_anio = sig_anio + 1
+
+            time_difference = date(sig_anio, sig_mes, 1) - date(anio, mes, 1)
+            return time_difference.days
+
         current_date = date.today()
         current_day = current_date.day
         current_month = current_date.month
@@ -567,47 +621,48 @@ class Participantes:
             sel_mes = current_month
             sel_anio = current_year
 
-        ventana = tk.Toplevel(self.win)
+        ventana = tk.Toplevel(self.win, background=self.color_palette['window_bg'])
         ventana.title('Seleccionar Fecha')
         ventana.transient(self.win)
 
-        lblSeleccion = ttk.Label(ventana, anchor='center', text='Seleccione una fecha')
+        lblSeleccion = ttk.Label(ventana, style='main.TLabel')
+        lblSeleccion.configure(anchor='center', text='Seleccione una fecha')
         lblSeleccion.pack(side='top', fill='x', padx=5, pady=5)
 
-        frmBotones = tk.Frame(ventana)
+        frmBotones = tk.Frame(ventana, background=self.color_palette['window_bg'])
         frmBotones.pack(side='bottom', pady=5)
 
-        btnSeleccionar = ttk.Button(frmBotones, text='Seleccionar')
+        btnSeleccionar = ttk.Button(frmBotones, text='Seleccionar', style='main.TButton')
         btnSeleccionar.grid(row=0, column=0, padx=5)
 
-        btnCancelar = ttk.Button(frmBotones, text='Cancelar')
+        btnCancelar = ttk.Button(frmBotones, text='Cancelar', style='main.TButton')
         btnCancelar.grid(row=0, column=1, padx=5)
 
 
         # Crear frame con selectores de fecha
-        frmFecha = tk.Frame(ventana)
+        frmFecha = tk.Frame(ventana, background=self.color_palette['window_bg'])
         frmFecha.configure(height=50, pady=5, padx=5)
         frmFecha.pack(side='bottom', anchor='s')
 
-        lblDia = tk.Label(frmFecha, text='Día')
+        lblDia = ttk.Label(frmFecha, text='Día', style='main.TLabel')
         lblDia.grid(row=0, column=0, padx=5, pady=3)
-        comboDia = ttk.Combobox(frmFecha, state='readonly', width=5)
+        comboDia = ttk.Combobox(frmFecha, state='readonly', width=5, style='main.TCombobox')
         comboDia.grid(row=1, column=0, pady=5, padx=7)
         
 
-        lblMes = tk.Label(frmFecha, text='Mes')
+        lblMes = ttk.Label(frmFecha, text='Mes', style='main.TLabel')
         lblMes.grid(row=0, column=1, padx=5, pady=3)
-        comboMes = ttk.Combobox(frmFecha, state='readonly', width=7)
+        comboMes = ttk.Combobox(frmFecha, state='readonly', width=7, style='main.TCombobox')
         comboMes.grid(row=1, column=1, pady=5, padx=7)
         
 
-        lblAnio = tk.Label(frmFecha, text='Año')
+        lblAnio = ttk.Label(frmFecha, text='Año', style='main.TLabel')
         lblAnio.grid(row=0, column=2, padx=5, pady=3)
-        comboAnio = ttk.Combobox(frmFecha, state='readonly', width=7)
+        comboAnio = ttk.Combobox(frmFecha, state='readonly', width=7, style='main.TCombobox')
         comboAnio.grid(row=1, column=2, pady=5, padx=7)
         
         def rellenar_Selectores_Fecha():
-            num_dias_mes = self.num_Dias_Mes(sel_anio, sel_mes)
+            num_dias_mes = num_Dias_Mes(sel_anio, sel_mes)
             
             comboAnio['values'] = tuple(range(1900, 2100 + 1)) #tupla del 1900 al 2100
             comboMes['values'] = ('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre')
@@ -625,12 +680,16 @@ class Participantes:
             sel_mes = comboMes.current() + 1
             sel_dia = int(comboDia.get())
 
-            num_dias_mes = self.num_Dias_Mes(sel_anio, sel_mes)
+            num_dias_mes = num_Dias_Mes(sel_anio, sel_mes)
             #Si el dia seleccionado es mayor al último día del mes, forzamos la selección al último día del mes
             if sel_dia > num_dias_mes:
                 sel_dia = num_dias_mes 
                 comboDia.set(num_dias_mes)
             rellenar_Selectores_Fecha()
+            #Deseleccionar el texto de los Combobox, temas visuales
+            comboDia.selection_clear()
+            comboMes.selection_clear()
+            comboAnio.selection_clear()
 
         def confirmar_Seleccion():
             if date(sel_anio, sel_mes, sel_dia) > current_date:
@@ -649,7 +708,19 @@ class Participantes:
         btnSeleccionar.configure(command=confirmar_Seleccion)
         btnCancelar.configure(command=ventana.destroy)
 
+    def valida_Grabar(self):
+        '''Valida que el Id y la fecha no estén vacios, si el Id está vacio devuelve False,
+        si la fecha está vacía muestra un mensaje '''
 
+        # Validación identificación
+        if (len(self.entryId.get()) == 0 ):
+            return False
+        else:
+            tabla_TreeView = self.treeDatos.get_children()
+            for linea in tabla_TreeView:
+                if (int(self.entryId.get())) == self.treeDatos.item(linea)['text']:
+                    return False
+            return True
 
     def adiciona_Registro(self):
         '''Adiciona un producto a la BD si la validación es True'''
