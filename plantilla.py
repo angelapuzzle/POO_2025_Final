@@ -30,8 +30,7 @@ class Participantes:
     }
 
     # Variables usadas para guardar información digitada por el usuario
-    cod_departamento = None
-    cod_ciudad = None
+    sel_ciudad = None #si hay una ciudad, esto será una tupla (id_departamento, id_ciudad)
     sel_fecha = None #si hay una fecha seleccionada esto será un objeto date
 
     def __init__(self, master=None):
@@ -40,12 +39,14 @@ class Participantes:
         
              
         #Top Level - Configuración
-        self.win.configure(background=self.color_palette['window_bg'], height='480', relief='flat', width='1024')
-        self.win.geometry('1024x480')
+        self.win.configure(background=self.color_palette['window_bg'], relief='flat')
+        self.centrar_Ventana(self.win, 1024, 480)
         self.win.iconbitmap(self.program_icon)
         self.win.resizable(False, False)
         self.win.title('Conferencia MACSS y la Ingeniería de Requerimientos')
         self.win.pack_propagate(0) 
+
+       
 
 
         self.style = ttk.Style()
@@ -223,6 +224,7 @@ class Participantes:
         
         #Entry Celular
         self.entryCelularText = tk.StringVar()
+        self.entryCelularText.trace_add('write', self.valida_Campo_Celular)
         self.entryCelular = tk.Entry(self.lblfrm_Datos, textvariable=self.entryCelularText)
         self.entryCelular.configure(config_entry_Datos)
         self.entryCelular.configure(width=30)
@@ -235,6 +237,7 @@ class Participantes:
         
         #Entry Entidad
         self.entryEntidadText = tk.StringVar()
+        self.entryEntidadText.trace_add('write', self.valida_Campo_Entidad)
         self.entryEntidad = tk.Entry(self.lblfrm_Datos, textvariable=self.entryEntidadText)
         self.entryEntidad.configure(config_entry_Datos)
         self.entryEntidad.configure(width=30)
@@ -355,14 +358,13 @@ class Participantes:
             self.treeDatos.delete(linea)
         if self.consultaFiltro is None:
             # Seleccionando los datos de la BD, esta query usa un join para obtener el nombre de la ciudad a partir del código guardado en esta
-            query = 'SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad ORDER BY Id DESC'
+            query = 'SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad ORDER BY Id'
             db_rows = self.run_Query(query)
         else:
             query = self.consultaFiltro[0]
             parametros = self.consultaFiltro[1]
             db_rows = self.run_Query(query, parametros)
 
-        
         # Insertando los datos de la BD en la tabla de la pantalla
         for row in db_rows:
             ciudad = row[2]
@@ -409,6 +411,24 @@ class Participantes:
         filtered_text = text.lstrip()
 
         self.entryDireccionText.set(filtered_text)
+    
+    def valida_Campo_Celular(self, var, index, mode):
+        text = self.entryCelularText.get()
+
+        filtered_text = filtered_text = re.sub(r'[^\d]', '', text)
+
+        #Si el número supera los 10 carácteres mostrar un mensaje
+        if len(filtered_text) > 10:
+            self.win.after(1, mssg.showerror, 'Atención!!','.. ¡Máximo 10 caracteres! ..')
+
+        self.entryCelularText.set(filtered_text[0:10])
+    
+    def valida_Campo_Entidad(self, var, index, mode):
+        text = self.entryEntidadText.get()
+
+        filtered_text = text.lstrip()
+
+        self.entryEntidadText.set(filtered_text)
 
     
     '''Función utilizada para el boón editar, trae desde el treeview el participante seleccionado
@@ -428,12 +448,12 @@ class Participantes:
         # Carga los códigos del departamento y de la ciudad
         query = 'SELECT Id_Departamento, Id_Ciudad FROM t_participantes WHERE Id = ?'
         parametros = (self.treeDatos.item(self.treeDatos.selection())['text'],)
-        codigos = self.run_Query(query, parametros).fetchone()
-        self.cod_departamento = codigos[0]
-        self.cod_ciudad = codigos[1]
+        self.sel_ciudad = tuple(self.run_Query(query, parametros).fetchone())
+        if self.sel_ciudad[1] is None:
+            self.sel_ciudad = None
 
         # Si la ciudad no está definida, dejar el campo "vacio"
-        if self.cod_ciudad is None:
+        if self.sel_ciudad is None:
             self.entryCiudadText.set('[Seleccionar]')
 
         # Carga la fecha si no está vacia
@@ -459,8 +479,7 @@ class Participantes:
         self.entryCelularText.set('')
         self.entryEntidadText.set('')
         self.entryFechaText.set('[Seleccionar]')
-        self.cod_departamento = None
-        self.cod_ciudad = None
+        self.sel_ciudad = None
         self.sel_fecha = None
     
         
@@ -472,7 +491,9 @@ class Participantes:
 
         ventana = tk.Toplevel(self.win, background=self.color_palette['window_bg'])
         ventana.title('Seleccionar Ciudad')
-        ventana.geometry('420x320')
+        ventana.iconbitmap(self.program_icon)
+        self.centrar_Ventana(ventana, 420, 320)
+        ventana.resizable(False, False)
         ventana.transient(self.win) #Indica que la ventana depende de la principal
 
         #Label mostrando la selección actual
@@ -538,17 +559,17 @@ class Participantes:
                 listboxCiudades.activate(index_ciudad)
 
         # Si ya hay una ciudad seleccionada precargar todo, sino solo cargar la lista de departamentos sin tener ninguno seleccionado
-        if self.cod_departamento is not None:
-            pre_cod_departamento = self.cod_departamento
-            pre_cod_ciudad = self.cod_ciudad
+        if self.sel_ciudad is not None:
+            pre_cod_departamento = self.sel_ciudad[0]
+            pre_cod_ciudad = self.sel_ciudad[1]
 
             query = 'SELECT DISTINCT Nombre_Departamento FROM t_ciudades WHERE Id_Departamento = ?'
-            parametros = (self.cod_departamento, )
+            parametros = (self.sel_ciudad[0], )
             departamento = self.run_Query(query, parametros).fetchone()[0]
             cargar_Lista_Departamentos(departamento)
 
             query = 'SELECT Nombre_Ciudad FROM t_ciudades WHERE Id_Ciudad = ?'
-            parametros = (self.cod_ciudad, )
+            parametros = (self.sel_ciudad[1], )
             ciudad = self.run_Query(query, parametros).fetchone()[0]
             cargar_Lista_Ciudades(departamento, ciudad)
 
@@ -600,8 +621,7 @@ class Participantes:
         def confirmar_Seleccion(event = None):
             if pre_cod_departamento is not None and pre_cod_ciudad is not None:
                 self.entryCiudadText.set(pre_cod_ciudad_text)
-                self.cod_ciudad = pre_cod_ciudad
-                self.cod_departamento = pre_cod_departamento
+                self.sel_ciudad = (pre_cod_departamento, pre_cod_ciudad)
                 ventana.destroy()
     
         listboxDepartamentos.bind('<<ListboxSelect>>', seleccionar_Departamento)
@@ -643,6 +663,8 @@ class Participantes:
         ventana = tk.Toplevel(self.win, background=self.color_palette['window_bg'])
         ventana.title('Seleccionar Fecha')
         ventana.transient(self.win)
+        self.centrar_Ventana(ventana, 226, 130)
+        ventana.resizable(False, False)
 
         lblSeleccion = ttk.Label(ventana, style='main.TLabel')
         lblSeleccion.configure(anchor='center', text='Seleccione una fecha')
@@ -679,6 +701,7 @@ class Participantes:
         lblAnio.grid(row=0, column=2, padx=5, pady=3)
         comboAnio = ttk.Combobox(frmFecha, state='readonly', width=7, style='main.TCombobox')
         comboAnio.grid(row=1, column=2, pady=5, padx=7)
+
         
         def rellenar_Selectores_Fecha():
             num_dias_mes = num_Dias_Mes(sel_anio, sel_mes)
@@ -756,34 +779,38 @@ class Participantes:
             text_fecha = date.today().strftime('%d/%m/%Y')
             mssg.showinfo('', f'No se ha seleccionado una fecha, los datos se guardarán con la fecha {text_fecha}')
             self.sel_fecha = date.today()
-
         return True
         
 
     def adiciona_Registro(self):
         '''Adiciona un producto a la BD si la validación es True'''
-        # Convierte la fecha de datetime a AAAA-MM-DD (así lo maneja sqlite)
-        if self.sel_fecha is not None:
-            fecha_sql = self.sel_fecha.strftime('%Y-%m-%d')
-        else:
-            fecha_sql = None
-        
         if self.valida_Grabar():
+            # Convierte la fecha de datetime a AAAA-MM-DD (así lo maneja sqlite)
+            fecha_sql = self.sel_fecha.strftime('%Y-%m-%d')
+
+            # Verifica si hay una ciudad seleccionada
+            if self.sel_ciudad is not None:
+                departamento = self.sel_ciudad[0]
+                ciudad = self.sel_ciudad[1]
+            else:
+                departamento = ''
+                ciudad = ''
+            
             if self.actualiza:
                 self.actualiza = None
                 self.entryId.configure(state = 'readonly')
                 query = 'UPDATE t_participantes SET Nombre = ?, Direccion = ?, Celular = ?, Entidad = ?, Fecha = ?, Id_Departamento = ?, Id_Ciudad = ? WHERE Id = ?'
-                parametros = (self.entryNombre.get(), self.entryDireccion.get(), self.entryCelular.get(),
-                            self.entryEntidad.get(), fecha_sql, self.cod_departamento,
-                            self.cod_ciudad, self.entryId.get())
+                parametros = (self.entryNombre.get().strip(), self.entryDireccion.get().strip(), self.entryCelular.get(),
+                            self.entryEntidad.get().strip(), fecha_sql, departamento,
+                            ciudad, self.entryId.get())
                 self.run_Query(query, parametros)
                 mssg.showinfo('Ok', 'Registro actualizado con éxito')
                 self.limpia_Campos()
             else:
                 query = 'INSERT INTO t_participantes(Id, Nombre, Direccion, Celular, Entidad, Fecha, Id_Departamento, Id_Ciudad) VALUES(?, ?, ?, ?, ?, ?, ?, ?)'
-                parametros = (self.entryId.get(), self.entryNombre.get(), self.entryDireccion.get(),
-                            self.entryCelular.get(), self.entryEntidad.get(), fecha_sql,
-                            self.cod_departamento, self.cod_ciudad)
+                parametros = (self.entryId.get(), self.entryNombre.get().strip(), self.entryDireccion.get().strip(),
+                            self.entryCelular.get(), self.entryEntidad.get().strip(), fecha_sql,
+                            departamento, ciudad)
                 self.run_Query(query, parametros)
                 mssg.showinfo('',f'Registro con ID: {self.entryIdText.get()}, agregado')
                 self.limpia_Campos()
@@ -815,16 +842,20 @@ class Participantes:
             
             mssg.showinfo('Eliminado', 'Los registros seleccionados fueron eliminados')
             self.lee_tablaTreeView() #Carga la tabla al treeview actualizada
+    
+    def centrar_Ventana(self, ventana, ancho_Ventana, altura_Ventana):
+        #  Obtenemos el largo y  ancho de la pantalla
+        wtotal = ventana.winfo_screenwidth()
+        htotal = ventana.winfo_screenheight()
 
-    def consulta(self):
-        self.consulta = True
-        #ELIMINAR luego
-        if self.cod_ciudad is None:
-            self.sel_ciudad = None
-        else:
-            self.sel_ciudad = (self.cod_departamento, self.cod_ciudad)
+        #  Aplicamos la siguiente formula para calcular donde debería posicionarse
+        pwidth = round(wtotal/2-ancho_Ventana/2)
+        pheight = round(htotal/2-altura_Ventana/2)
 
-        
+        #  Se lo aplicamos a la geometría de la ventana
+        ventana.geometry(str(ancho_Ventana)+"x"+str(altura_Ventana)+"+"+str(pwidth)+"+"+str(pheight))
+
+    def consulta(self): 
         condiciones = []
         parametros = []
 
@@ -834,7 +865,7 @@ class Participantes:
         for row in (
         ('Id', self.entryIdText.get()),
         ('Nombre', self.entryNombreText.get()),
-        ('Id_Ciudad', ciudad),
+        ('t_participantes.Id_Ciudad', ciudad),
         ('Direccion', self.entryDireccionText.get()),
         ('Celular', self.entryCelularText.get()),
         ('Entidad', self.entryEntidadText.get()),
@@ -849,15 +880,18 @@ class Participantes:
             mssg.showerror('¡ Atención !', 'Se requiere al menos un dato para la consulta')
             return False
 
-        query = ('SELECT * FROM t_participantes WHERE ' + ' OR '.join(condiciones))
+        query = ('SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad WHERE ' + ' OR '.join(condiciones) + ' ORDER BY Id ')
+        print(condiciones)
+        print(parametros)
+        print(query)
         self.consultaFiltro = (query, parametros)
         self.lee_tablaTreeView()
+
 
 
     def quitar_Filtro(self):
         self.consultaFiltro = None
         self.lee_tablaTreeView()
-
 
 
 if __name__ == '__main__':
