@@ -13,6 +13,7 @@ class Participantes:
     db_name = path + r'/Participantes.db'
     program_icon = path + r'/ico_registro.ico'
     actualiza = None
+    consultaFiltro = None #si hay una consulta activa, esto será [(query), (parametros)]
 
     
     color_palette = {
@@ -284,16 +285,27 @@ class Participantes:
         self.btnCancelar = ttk.Button(self.frmBotones, style='main.TButton')
         self.btnCancelar.configure(text='Cancelar', width='9', command=self.limpia_Campos)
         self.btnCancelar.grid(column='3', row='0', sticky='n', padx='4', pady='4')
-        
+
+
+        #Frame Botones TreeView
+        self.frmBotonesTreeDatos = tk.Frame(self.win, background=self.color_palette['window_bg'])
+        self.frmBotonesTreeDatos.place(anchor='nw', height='400', rely='0.04', width='700', x='300', y='370')
+
         #Botón Consultar
-        self.btnConsultar = ttk.Button(self.frmBotones, style='main.TButton')
-        self.btnConsultar.configure(text='Consultar', width='9') #command = Función
-        self.btnConsultar.grid(column='1', columnspan=2, row='1', sticky='n', padx='4', pady='4')
+        self.btnConsultar = ttk.Button(self.frmBotonesTreeDatos, style='main.TButton')
+        self.btnConsultar.configure(text='Consultar', width='9', command = self.consulta)
+        self.btnConsultar.grid(column='0', row='0', sticky='n', padx='4', pady='10')
+
+        #Boton Quitar Filtro
+        self.btnQFiltro = ttk.Button(self.frmBotonesTreeDatos, style='main.TButton')
+        self.btnQFiltro.configure(text='Quitar Filtro', width='11', command = self.quitar_Filtro)
+        self.btnQFiltro.grid(column='1', row='0', sticky='n', padx='4', pady='10')
+
         
         
         #tablaTreeView
         self.treeDatos = ttk.Treeview(self.win, style='main.Treeview')
-        self.treeDatos.place(anchor='nw', height='400', rely='0.04', width='700', x='300', y='0')
+        self.treeDatos.place(anchor='nw', rely='0.04', width='700', height='370', x='300')
 
         #Etiquetas de las columnas
         self.treeDatos['columns']=('Nombre','Ciudad','Dirección','Celular','Entidad','Fecha')
@@ -319,7 +331,7 @@ class Participantes:
         #Scrollbar en el eje Y de treeDatos
         self.scrollbar=ttk.Scrollbar(self.win, orient='vertical', command=self.treeDatos.yview)
         self.treeDatos.configure(yscroll=self.scrollbar.set)
-        self.scrollbar.place(x=1000, rely='0.04', height=400)
+        self.scrollbar.place(x=1000, rely='0.04', height=370)
 
         #Carga los datos en treeDatos
         self.lee_tablaTreeView()
@@ -341,9 +353,16 @@ class Participantes:
         tabla_TreeView = self.treeDatos.get_children()
         for linea in tabla_TreeView:
             self.treeDatos.delete(linea)
-        # Seleccionando los datos de la BD, esta query usa un join para obtener el nombre de la ciudad a partir del código guardado en esta
-        query = 'SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad ORDER BY Id DESC'
-        db_rows = self.run_Query(query)
+        if self.consultaFiltro is None:
+            # Seleccionando los datos de la BD, esta query usa un join para obtener el nombre de la ciudad a partir del código guardado en esta
+            query = 'SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad ORDER BY Id DESC'
+            db_rows = self.run_Query(query)
+        else:
+            query = self.consultaFiltro[0]
+            parametros = self.consultaFiltro[1]
+            db_rows = self.run_Query(query, parametros)
+
+        
         # Insertando los datos de la BD en la tabla de la pantalla
         for row in db_rows:
             ciudad = row[2]
@@ -797,6 +816,47 @@ class Participantes:
             mssg.showinfo('Eliminado', 'Los registros seleccionados fueron eliminados')
             self.lee_tablaTreeView() #Carga la tabla al treeview actualizada
 
+    def consulta(self):
+        self.consulta = True
+        #ELIMINAR luego
+        if self.cod_ciudad is None:
+            self.sel_ciudad = None
+        else:
+            self.sel_ciudad = (self.cod_departamento, self.cod_ciudad)
+
+        
+        condiciones = []
+        parametros = []
+
+        ciudad = self.sel_ciudad[1] if self.sel_ciudad is not None else ''
+        fecha = self.sel_fecha.strftime('%Y-%m-%d') if self.sel_fecha is not None else ''
+
+        for row in (
+        ('Id', self.entryIdText.get()),
+        ('Nombre', self.entryNombreText.get()),
+        ('Id_Ciudad', ciudad),
+        ('Direccion', self.entryDireccionText.get()),
+        ('Celular', self.entryCelularText.get()),
+        ('Entidad', self.entryEntidadText.get()),
+        ('Fecha', fecha),
+        ):
+            if row[1] != '':
+                condiciones.append(row[0] + ' LIKE ?')
+                parametros.append(row[1])
+
+        # Si todo está vacio
+        if len(parametros) == 0:
+            mssg.showerror('¡ Atención !', 'Se requiere al menos un dato para la consulta')
+            return False
+
+        query = ('SELECT * FROM t_participantes WHERE ' + ' OR '.join(condiciones))
+        self.consultaFiltro = (query, parametros)
+        self.lee_tablaTreeView()
+
+
+    def quitar_Filtro(self):
+        self.consultaFiltro = None
+        self.lee_tablaTreeView()
 
 
 
