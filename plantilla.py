@@ -358,7 +358,9 @@ class Participantes:
             self.treeDatos.delete(linea)
         if self.consultaFiltro is None:
             # Seleccionando los datos de la BD, esta query usa un join para obtener el nombre de la ciudad a partir del código guardado en esta
-            query = 'SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad ORDER BY Id'
+            query = '''SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha 
+                FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad 
+                ORDER BY Id'''
             db_rows = self.run_Query(query)
         else:
             query = self.consultaFiltro[0]
@@ -494,7 +496,8 @@ class Participantes:
         ventana.iconbitmap(self.program_icon)
         self.centrar_Ventana(ventana, 420, 320)
         ventana.resizable(False, False)
-        ventana.transient(self.win) #Indica que la ventana depende de la principal
+        ventana.transient(self.win) #Indica que la ventana se muestra sobre la principal
+        ventana.grab_set() #Evita que se interactue con la ventana principal hasta cerrar esta
 
         #Label mostrando la selección actual
         lblSeleccion = ttk.Label(ventana, style='main.TLabel')
@@ -662,9 +665,10 @@ class Participantes:
 
         ventana = tk.Toplevel(self.win, background=self.color_palette['window_bg'])
         ventana.title('Seleccionar Fecha')
-        ventana.transient(self.win)
         self.centrar_Ventana(ventana, 226, 130)
         ventana.resizable(False, False)
+        ventana.transient(self.win) #Indica que la ventana se muestra sobre la principal
+        ventana.grab_set() #Evita que se interactue con la ventana principal hasta cerrar esta
 
         lblSeleccion = ttk.Label(ventana, style='main.TLabel')
         lblSeleccion.configure(anchor='center', text='Seleccione una fecha')
@@ -873,14 +877,18 @@ class Participantes:
         ):
             if row[1] != '':
                 condiciones.append(row[0] + ' LIKE ?')
-                parametros.append(row[1])
+                parametros.append('%' + row[1] + '%')
 
         # Si todo está vacio
         if len(parametros) == 0:
             mssg.showerror('¡ Atención !', 'Se requiere al menos un dato para la consulta')
             return False
 
-        query = ('SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad WHERE ' + ' OR '.join(condiciones) + ' ORDER BY Id ')
+        query = ('''SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha
+            FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad 
+            WHERE ''' + 
+            ' AND '.join(condiciones) + 
+            ' ORDER BY Id ')
         print(condiciones)
         print(parametros)
         print(query)
