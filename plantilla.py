@@ -588,6 +588,7 @@ class Participantes:
             departamento = self.run_Query(query, parametros).fetchone()[0]
             cargar_Lista_Departamentos(departamento)
 
+
             query = 'SELECT Nombre_Ciudad FROM t_ciudades WHERE Id_Ciudad = ?'
             parametros = (self.sel_ciudad[1], )
             ciudad = self.run_Query(query, parametros).fetchone()[0]
