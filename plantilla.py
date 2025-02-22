@@ -922,15 +922,19 @@ class Participantes:
         ciudad = self.sel_ciudad[1] if self.sel_ciudad is not None else ''
         fecha = self.sel_fecha.strftime('%Y-%m-%d') if self.sel_fecha is not None else ''
 
-        for row in (
-        ('Id', self.entryIdText.get()),
-        ('Nombre', self.entryNombreText.get()),
-        ('t_participantes.Id_Ciudad', ciudad),
-        ('Direccion', self.entryDireccionText.get()),
-        ('Celular', self.entryCelularText.get()),
-        ('Entidad', self.entryEntidadText.get()),
-        ('Fecha', fecha),
-        ):
+        campos_valores = (
+            ('Id', self.entryIdText.get()),
+            ('Nombre', self.entryNombreText.get()),
+            ('t_participantes.Id_Ciudad', ciudad),
+            ('Direccion', self.entryDireccionText.get()),
+            ('Celular', self.entryCelularText.get()),
+            ('Entidad', self.entryEntidadText.get()),
+            ('Fecha', fecha)
+        )
+
+        #Cada row tendrá (nombre_campo_sql, valor_seleccionado)
+        for row in campos_valores:
+            #Si el valor seleccionado es una cadena vacia no lo agregamos a la lista de condiciones y parametros
             if row[1] != '':
                 condiciones.append(row[0] + ' LIKE ?')
                 parametros.append('%' + row[1] + '%')
@@ -945,6 +949,11 @@ class Participantes:
             WHERE ''' + 
             ' AND '.join(condiciones) + 
             ' ORDER BY Id ')
+        
+        # La query es idéntica a la de lee_tablaTreeView, pero agregando un where donde se concatenan las condiciones, y se le pasan todos los parametros
+        # Ejemplo de la seccion nueva del query WHERE Id = ? AND Nombre = ? AND t_participantes.Id_Ciudad = ? ...
+        # Esa sección del query solo estará compuesta por los campos no vacios de el lblfrm_Datos
+        # Los parametros solo serán el contenido de los campos no vacios de el lblfrm_Datos
         self.consultaFiltro = (query, parametros)
         self.lee_tablaTreeView()
 
