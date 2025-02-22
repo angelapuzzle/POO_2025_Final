@@ -382,7 +382,7 @@ class Participantes:
                 except ValueError:
                     # Si hay una fecha invalida pone el texto como 'Invalida'
                     fecha = 'Invalida'
-            self.treeDatos.insert('',0, text = row[0], values = [row[1],ciudad,row[3],row[4],row[5],fecha])
+            self.treeDatos.insert('','end', text = row[0], values = [row[1],ciudad,row[3],row[4],row[5],fecha])
 
             
 
@@ -828,7 +828,6 @@ class Participantes:
             mssg.showerror('¡ Atención !', 'Solo puede seleccionar un ítem a editar')
         else:
             self.treeDatos.item(self.treeDatos.selection())['text']
-            self.limpia_Campos()
             self.actualiza = True # Esta variable controla la actualización
             self.carga_Datos()
         
