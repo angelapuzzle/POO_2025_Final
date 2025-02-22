@@ -525,13 +525,14 @@ class Participantes:
         frmDepartamentos = tk.Frame(ventana, background=self.color_palette['window_secondary'])
         frmDepartamentos.pack(side='left', fill='both', expand=True, padx=5, pady=5)
 
-	# Scrollbar para departamentos
-        scrollDep = ttk.Scrollbar(frmDepartamentos, orient='vertical')
-        scrollDep.pack(side='right', fill='y')
-
         lblDepartamentos = ttk.Label(frmDepartamentos, style='second.TLabel')
         lblDepartamentos.configure(text='Departamentos')
         lblDepartamentos.pack()
+
+	    # Scrollbar para departamentos
+        scrollDep = ttk.Scrollbar(frmDepartamentos, orient='vertical')
+        scrollDep.pack(side='right', fill='y')
+
         listboxDepartamentos = tk.Listbox(frmDepartamentos, width=25, background=self.color_palette['entry'], yscrollcommand=scrollDep.set)
         listboxDepartamentos.pack(fill='both', expand=True)
         scrollDep.config(command=listboxDepartamentos.yview)
@@ -540,13 +541,14 @@ class Participantes:
         frmCiudades = tk.Frame(ventana, background=self.color_palette['window_secondary'])
         frmCiudades.pack(side='right', fill='both', expand=True, padx=5, pady=5)
 
-	# Scorllbar para ciudades
-        scrollCiu= ttk.Scrollbar(frmCiudades, orient='vertical')
-        scrollCiu.pack(side='right',fill='y')
-    
         lblCiudades = ttk.Label(frmCiudades, style='second.TLabel')
         lblCiudades.configure(text='Ciudades')
         lblCiudades.pack()
+
+	    # Scrollbar para ciudades
+        scrollCiu= ttk.Scrollbar(frmCiudades, orient='vertical')
+        scrollCiu.pack(side='right',fill='y')
+    
         listboxCiudades = tk.Listbox(frmCiudades, background=self.color_palette['entry'], yscrollcommand=scrollCiu.set)
         listboxCiudades.pack(fill='both', expand=True)
         scrollCiu.config(command=listboxCiudades.yview)
