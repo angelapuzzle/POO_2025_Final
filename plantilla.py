@@ -137,7 +137,8 @@ class Participantes:
             background=self.color_palette['tabla_encabezado'],
             font=('Calibri Light', 10,'bold')
         
-        ) 
+        )
+
         self.style.layout(
             'main.Treeview',
             [('main.Treeview.treearea', {'sticky': 'nswe'})]
@@ -331,6 +332,10 @@ class Participantes:
         self.btnQFiltro.configure(text='Quitar Filtro', width='11', command = self.quitar_Filtro)
         self.btnQFiltro.grid(column='1', row='0', sticky='n', padx='4', pady='10')
 
+        #Boton Restaurar Ancho
+        self.btnRAncho = ttk.Button(self.frmBotonesTreeDatos, style='main.TButton')
+        self.btnRAncho.configure(text='Restaurar Ancho', width='15', command = self.set_Ancho_TreeView)
+        self.btnRAncho.grid(column='2', row='0', sticky='n', padx='4', pady='10')
 
         #Checkbox Mostrar Departamento
         self.chkMostrarDepState = tk.BooleanVar() #Define si en el treeview se muestra [Ciudad]/[Ciudad, Departamento]
@@ -348,15 +353,9 @@ class Participantes:
 
         #Etiquetas de las columnas
         self.treeDatos['columns']=('Nombre','Ciudad','Dirección','Celular','Entidad','Fecha')
+
         # Determina el espacio a mostrar que ocupa el código
-        self.treeDatos.column('#0',         stretch='true',             width=15) # #0 se refiere a que es la primera columna y no se puede cambiar.
-        self.treeDatos.column('Nombre',     stretch='true',             width=60)
-        self.treeDatos.column('Ciudad',     stretch='true',             width=12) #Revisar widths
-        self.treeDatos.column('Dirección',  stretch='true',             width=60)
-        self.treeDatos.column('Celular',    stretch='true',             width=16)
-        self.treeDatos.column('Entidad',    stretch='true',             width=60)
-        self.treeDatos.column('Fecha',      stretch='true',             width=12)
-        
+        self.set_Ancho_TreeView()
 
         #Encabezados de las columnas de la pantalla
         self.treeDatos.heading('#0',       text = 'Id')
@@ -960,8 +959,20 @@ class Participantes:
 
 
     def quitar_Filtro(self):
-        self.consultaFiltro = None
-        self.lee_tablaTreeView()
+        if self.consultaFiltro is None:
+            mssg.showinfo('', 'No hay ningun filtro activo')
+        else:
+            self.consultaFiltro = None
+            self.lee_tablaTreeView()
+
+    def set_Ancho_TreeView(self):
+        self.treeDatos.column('#0',         stretch='true',             width=93)
+        self.treeDatos.column('Nombre',     stretch='true',             width=91)
+        self.treeDatos.column('Ciudad',     stretch='true',             width=115)
+        self.treeDatos.column('Dirección',  stretch='true',             width=114)
+        self.treeDatos.column('Celular',    stretch='true',             width=83)
+        self.treeDatos.column('Entidad',    stretch='true',             width=126)
+        self.treeDatos.column('Fecha',      stretch='true',             width=78)
 
 
 if __name__ == '__main__':
