@@ -43,7 +43,7 @@ class Participantes:
     }
 
     # Variables usadas para guardar información digitada por el usuario
-    sel_ciudad = None #si hay una ciudad, esto será una tupla (id_departamento, id_ciudad)
+    sel_ciudad = None #si hay una ciudad, esto será una tupla (id_departamento, id_ciudad, text_ciudad)
     sel_fecha = None #si hay una fecha seleccionada esto será un objeto date
 
     def __init__(self, master=None):
@@ -486,7 +486,7 @@ class Participantes:
         self.entryEntidadText.set(self.treeDatos.item(self.treeDatos.selection())['values'][4])
 
         # Carga los códigos del departamento y de la ciudad
-        query = 'SELECT Id_Departamento, Id_Ciudad FROM t_participantes WHERE Id = ?'
+        query = 'SELECT Id_Departamento, Id_Ciudad, Ciudad FROM t_participantes WHERE Id = ?'
         parametros = (self.treeDatos.item(self.treeDatos.selection())['text'],)
         self.sel_ciudad = tuple(self.run_Query(query, parametros).fetchone())
         if self.sel_ciudad[1] is None:
@@ -678,7 +678,7 @@ class Participantes:
                     self.entryCiudadText.set(pre_cod_ciudad_text + ', ' + pre_cod_departamento_text)
                 else:
                     self.entryCiudadText.set(pre_cod_ciudad_text)
-                self.sel_ciudad = (pre_cod_departamento, pre_cod_ciudad)
+                self.sel_ciudad = (pre_cod_departamento, pre_cod_ciudad, pre_cod_ciudad_text)
                 ventana.destroy()
     
         listboxDepartamentos.bind('<<ListboxSelect>>', seleccionar_Departamento)
@@ -842,7 +842,10 @@ class Participantes:
         
 
     def adiciona_Registro(self):
-        '''Adiciona un producto a la BD si la validación es True'''
+        '''Adiciona un registro a la BD si la validación es True'''
+        '''También guarda el nombre de la ciudad en el campo Ciudad para cumplir un requerimiento,
+            a pesar de que esto es completamente innecesario y el campo Ciudad nunca se leerá al
+            momento de cargar los datos'''
         if self.valida_Grabar():
             # Convierte la fecha de datetime a AAAA-MM-DD (así lo maneja sqlite)
             fecha_sql = self.sel_fecha.strftime('%Y-%m-%d')
@@ -851,25 +854,28 @@ class Participantes:
             if self.sel_ciudad is not None:
                 departamento = self.sel_ciudad[0]
                 ciudad = self.sel_ciudad[1]
+                text_ciudad = self.sel_ciudad[2]
             else:
                 departamento = ''
                 ciudad = ''
+                text_ciudad = ''
+        
             
             if self.actualiza:
                 self.actualiza = None
                 self.entryId.configure(state = 'readonly')
-                query = 'UPDATE t_participantes SET Nombre = ?, Direccion = ?, Celular = ?, Entidad = ?, Fecha = ?, Id_Departamento = ?, Id_Ciudad = ? WHERE Id = ?'
+                query = 'UPDATE t_participantes SET Nombre = ?, Direccion = ?, Celular = ?, Entidad = ?, Fecha = ?, Id_Departamento = ?, Id_Ciudad = ?, Ciudad = ? WHERE Id = ?'
                 parametros = (self.entryNombre.get().strip(), self.entryDireccion.get().strip(), self.entryCelular.get(),
                             self.entryEntidad.get().strip(), fecha_sql, departamento,
-                            ciudad, self.entryId.get())
+                            ciudad, text_ciudad, self.entryId.get())
                 self.run_Query(query, parametros)
                 mssg.showinfo('Ok', 'Registro actualizado con éxito')
                 self.limpia_Campos()
             else:
-                query = 'INSERT INTO t_participantes(Id, Nombre, Direccion, Celular, Entidad, Fecha, Id_Departamento, Id_Ciudad) VALUES(?, ?, ?, ?, ?, ?, ?, ?)'
+                query = 'INSERT INTO t_participantes(Id, Nombre, Direccion, Celular, Entidad, Fecha, Id_Departamento, Id_Ciudad, Ciudad) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)'
                 parametros = (self.entryId.get(), self.entryNombre.get().strip(), self.entryDireccion.get().strip(),
                             self.entryCelular.get(), self.entryEntidad.get().strip(), fecha_sql,
-                            departamento, ciudad)
+                            departamento, ciudad, text_ciudad)
                 self.run_Query(query, parametros)
                 mssg.showinfo('',f'Registro con ID: {self.entryIdText.get()}, agregado')
                 self.limpia_Campos()
