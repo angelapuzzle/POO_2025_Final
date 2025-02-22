@@ -6,23 +6,36 @@ from tkinter import messagebox as mssg
 import sqlite3
 from datetime import date, datetime
 import re
+import sys
+
+# El siguiente código cambia el id al correr el archivo para que el icono mostrado NO sea el del interprete de Python
+# https://coderslegacy.com/python/how-to-change-taskbar-icon-in-tkinter/
+try:
+    if sys.platform.startswith('win'):	
+        import ctypes
+        myappid = u'downsouffle.inscripciones'
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+except:
+    pass
 
 class Participantes:
     # nombre de la base de datos y ruta 
     path = r'Resources'
     db_name = path + r'/Participantes.db'
-    program_icon = path + r'/ico_registro.ico'
+    program_icon = path + r'/ico_registro_1.png'
     actualiza = None
     consultaFiltro = None #si hay una consulta activa, esto será [(query), (parametros)]
 
     
     color_palette = {
-        'window_bg': '#EFF1F5',
-        'hover_button': '#d1ddf5',
-        'lblfrm_datos': '#E6E9EF',
+        'window_bg': '#8394af',
+        'normal_button': '#dde5f5',
+        'hover_button': '#b8ccf5',
+        'click_button': '#78a1f5',
+        'window_secondary': '#dee6ef',
         'entry': '#faf8fc',
         'ronly_entry': '#efedf0',
-        'tabla_encabezado': '#7287FD',
+        'tabla_encabezado': 'lightgray',
         'tabla_fondo': '#E6E9EF',
         'scroll_primary_a': '#a0a0a0',
         'scroll_primary_i': '#cfcfcf',
@@ -41,7 +54,8 @@ class Participantes:
         #Top Level - Configuración
         self.win.configure(background=self.color_palette['window_bg'], relief='flat')
         self.centrar_Ventana(self.win, 1024, 480)
-        self.win.iconbitmap(self.program_icon)
+        self.icono_photo = tk.PhotoImage(file=self.program_icon)
+        self.win.iconphoto(True, self.icono_photo)
         self.win.resizable(False, False)
         self.win.title('Conferencia MACSS y la Ingeniería de Requerimientos')
         self.win.pack_propagate(0) 
@@ -53,30 +67,33 @@ class Participantes:
 
         self.style.theme_use('clam')
 
+        
         # Detalles sobre los map:
         # active es cuando el mouse está encima del cursor
 
         self.style.configure(
-            'main.TLabel',
-            background=self.color_palette['window_bg'],
-        )
-
-        self.style.configure(
             'main.TButton',
-            background=self.color_palette['window_bg'],
+            background=self.color_palette['normal_button'],
             padding=(2, 2)
         )
         self.style.map(
             'main.TButton',
-            background=[('pressed', 'darkblue'), ('active', self.color_palette['hover_button'])]
+            background=[('pressed', self.color_palette['click_button']), ('active', self.color_palette['hover_button'])]
+        )
+
+
+        self.style.configure(
+            'second.TLabel',
+            background=self.color_palette['window_secondary'],
         )
 
         self.style.configure(
-            'main.TCombobox',
-            background=self.color_palette['window_bg'],
+            'second.TCombobox',
+            background=self.color_palette['window_secondary'],
         )
+
         self.style.map(
-            'main.TCombobox',
+            'second.TCombobox',
             fieldbackground=[('disabled', self.color_palette['entry'])],
             background=[('active', self.color_palette['hover_button'])],
             foreground=[('selected', '#000000')]
@@ -84,14 +101,14 @@ class Participantes:
 
         self.style.configure(
             'lblfrm_Datos.TLabel',
-            background=self.color_palette['lblfrm_datos'],
+            background=self.color_palette['window_secondary'],
             anchor='e',
             font='TkTextFont',
             justify='left'
         )
         self.style.configure(
             'lblfrm_Datos.TButton',
-            background=self.color_palette['lblfrm_datos'],
+            background=self.color_palette['window_secondary'],
             padding=(2, 0) 
         )
 
@@ -146,7 +163,7 @@ class Participantes:
         
         #Label Frame
         self.lblfrm_Datos = tk.LabelFrame(self.win, labelanchor='n', font=('Helvetica',13,'bold'))
-        self.lblfrm_Datos.configure(background=self.color_palette['lblfrm_datos'], relief='groove')
+        self.lblfrm_Datos.configure(background=self.color_palette['window_secondary'], relief='groove')
         self.lblfrm_Datos.configure(height='370', width='280', text=' Inscripción ')
         self.lblfrm_Datos.place(anchor='nw', relx='0.01', rely='0.04', x='0', y='0')
         self.lblfrm_Datos.grid_propagate(0)
@@ -189,7 +206,7 @@ class Participantes:
         self.lblCiudad.grid(column='0', padx='5', row='2', sticky='w')
 
         #Frame Entry Ciudad (background coincide con lblfrmDatos)
-        self.frmCiudad = tk.Frame(self.lblfrm_Datos, background=self.color_palette['lblfrm_datos'])
+        self.frmCiudad = tk.Frame(self.lblfrm_Datos, background=self.color_palette['window_secondary'])
         self.frmCiudad.grid(column='1', row='2', sticky='w')
         
         #Entry Ciudad
@@ -249,7 +266,7 @@ class Participantes:
         self.lblFecha.grid(column='0', padx='5', row='6', sticky='w')
 
         #Frame Entry Fecha (background coincide con lblfrmDatos)
-        self.frmFecha = tk.Frame(self.lblfrm_Datos, background=self.color_palette['lblfrm_datos'])
+        self.frmFecha = tk.Frame(self.lblfrm_Datos, background=self.color_palette['window_secondary'])
         self.frmFecha.grid(column='1', row='6', sticky='w')
         
         #Entry Fecha
@@ -491,34 +508,34 @@ class Participantes:
         pre_cod_ciudad = None
         pre_cod_ciudad_text = None
 
-        ventana = tk.Toplevel(self.win, background=self.color_palette['window_bg'])
+        ventana = tk.Toplevel(self.win, background=self.color_palette['window_secondary'])
         ventana.title('Seleccionar Ciudad')
-        ventana.iconbitmap(self.program_icon)
+        ventana.iconphoto(True, self.icono_photo)
         self.centrar_Ventana(ventana, 420, 320)
         ventana.resizable(False, False)
         ventana.transient(self.win) #Indica que la ventana se muestra sobre la principal
         ventana.grab_set() #Evita que se interactue con la ventana principal hasta cerrar esta
 
         #Label mostrando la selección actual
-        lblSeleccion = ttk.Label(ventana, style='main.TLabel')
+        lblSeleccion = ttk.Label(ventana, style='second.TLabel')
         lblSeleccion.configure(anchor='center', text='Ciudad seleccionada: ')
         lblSeleccion.pack(side='top', fill='x', padx=5, pady=5)
         
         #Frame para departamentos
-        frmDepartamentos = tk.Frame(ventana, background=self.color_palette['window_bg'])
+        frmDepartamentos = tk.Frame(ventana, background=self.color_palette['window_secondary'])
         frmDepartamentos.pack(side='left', fill='y', padx=5, pady=5)
 
-        lblDepartamentos = ttk.Label(frmDepartamentos, style='main.TLabel')
+        lblDepartamentos = ttk.Label(frmDepartamentos, style='second.TLabel')
         lblDepartamentos.configure(text='Departamentos')
         lblDepartamentos.pack()
         listboxDepartamentos = tk.Listbox(frmDepartamentos, width=25, background=self.color_palette['entry'])
         listboxDepartamentos.pack(fill='y', expand=True)
 
         # Frame para ciudades
-        frmCiudades = tk.Frame(ventana, background=self.color_palette['window_bg'])
+        frmCiudades = tk.Frame(ventana, background=self.color_palette['window_secondary'])
         frmCiudades.pack(side='right', fill='both', expand=True, padx=5, pady=5)
     
-        lblCiudades = ttk.Label(frmCiudades, style='main.TLabel')
+        lblCiudades = ttk.Label(frmCiudades, style='second.TLabel')
         lblCiudades.configure(text='Ciudades')
         lblCiudades.pack()
         listboxCiudades = tk.Listbox(frmCiudades, background=self.color_palette['entry'])
@@ -663,18 +680,19 @@ class Participantes:
             sel_mes = current_month
             sel_anio = current_year
 
-        ventana = tk.Toplevel(self.win, background=self.color_palette['window_bg'])
+        ventana = tk.Toplevel(self.win, background=self.color_palette['window_secondary'])
         ventana.title('Seleccionar Fecha')
+        ventana.iconphoto(True, self.icono_photo)
         self.centrar_Ventana(ventana, 226, 130)
         ventana.resizable(False, False)
         ventana.transient(self.win) #Indica que la ventana se muestra sobre la principal
         ventana.grab_set() #Evita que se interactue con la ventana principal hasta cerrar esta
 
-        lblSeleccion = ttk.Label(ventana, style='main.TLabel')
+        lblSeleccion = ttk.Label(ventana, style='second.TLabel')
         lblSeleccion.configure(anchor='center', text='Seleccione una fecha')
         lblSeleccion.pack(side='top', fill='x', padx=5, pady=5)
 
-        frmBotones = tk.Frame(ventana, background=self.color_palette['window_bg'])
+        frmBotones = tk.Frame(ventana, background=self.color_palette['window_secondary'])
         frmBotones.pack(side='bottom', pady=5)
 
         btnSeleccionar = ttk.Button(frmBotones, text='Seleccionar', style='main.TButton')
@@ -685,25 +703,25 @@ class Participantes:
 
 
         # Crear frame con selectores de fecha
-        frmFecha = tk.Frame(ventana, background=self.color_palette['window_bg'])
+        frmFecha = tk.Frame(ventana, background=self.color_palette['window_secondary'])
         frmFecha.configure(height=50, pady=5, padx=5)
         frmFecha.pack(side='bottom', anchor='s')
 
-        lblDia = ttk.Label(frmFecha, text='Día', style='main.TLabel')
+        lblDia = ttk.Label(frmFecha, text='Día', style='second.TLabel')
         lblDia.grid(row=0, column=0, padx=5, pady=3)
-        comboDia = ttk.Combobox(frmFecha, state='readonly', width=5, style='main.TCombobox')
+        comboDia = ttk.Combobox(frmFecha, state='readonly', width=5, style='second.TCombobox')
         comboDia.grid(row=1, column=0, pady=5, padx=7)
         
 
-        lblMes = ttk.Label(frmFecha, text='Mes', style='main.TLabel')
+        lblMes = ttk.Label(frmFecha, text='Mes', style='second.TLabel')
         lblMes.grid(row=0, column=1, padx=5, pady=3)
-        comboMes = ttk.Combobox(frmFecha, state='readonly', width=7, style='main.TCombobox')
+        comboMes = ttk.Combobox(frmFecha, state='readonly', width=7, style='second.TCombobox')
         comboMes.grid(row=1, column=1, pady=5, padx=7)
         
 
-        lblAnio = ttk.Label(frmFecha, text='Año', style='main.TLabel')
+        lblAnio = ttk.Label(frmFecha, text='Año', style='second.TLabel')
         lblAnio.grid(row=0, column=2, padx=5, pady=3)
-        comboAnio = ttk.Combobox(frmFecha, state='readonly', width=7, style='main.TCombobox')
+        comboAnio = ttk.Combobox(frmFecha, state='readonly', width=7, style='second.TCombobox')
         comboAnio.grid(row=1, column=2, pady=5, padx=7)
 
         
