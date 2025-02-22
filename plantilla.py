@@ -848,6 +848,7 @@ class Participantes:
             self.treeDatos.item(self.treeDatos.selection())['text']
             self.actualiza = True # Esta variable controla la actualización
             self.carga_Datos()
+            mssg.showinfo('', f'Datos del ID: {self.entryIdText.get()} cargados correctamente')
         
     def elimina_Registro(self):
         if not self.treeDatos.selection(): #Verifica si la selección de la tabla esta vacía, osea, no ha seleccionado nada
