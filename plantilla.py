@@ -81,6 +81,16 @@ class Participantes:
             background=[('pressed', self.color_palette['click_button']), ('active', self.color_palette['hover_button'])]
         )
 
+        self.style.configure(
+            'main.TCheckbutton',
+            background=self.color_palette['window_bg'],
+            foreground='#383736'
+        )
+        self.style.map(
+            'main.TCheckbutton',
+            background=[('active', self.color_palette['window_bg'])]
+        )
+
 
         self.style.configure(
             'second.TLabel',
@@ -309,7 +319,7 @@ class Participantes:
 
         #Frame Botones TreeView
         self.frmBotonesTreeDatos = tk.Frame(self.win, background=self.color_palette['window_bg'])
-        self.frmBotonesTreeDatos.place(anchor='nw', height='400', rely='0.04', width='700', x='300', y='370')
+        self.frmBotonesTreeDatos.place(anchor='nw', rely='0.04', width='700', x='300', y='370')
 
         #Botón Consultar
         self.btnConsultar = ttk.Button(self.frmBotonesTreeDatos, style='main.TButton')
@@ -320,6 +330,15 @@ class Participantes:
         self.btnQFiltro = ttk.Button(self.frmBotonesTreeDatos, style='main.TButton')
         self.btnQFiltro.configure(text='Quitar Filtro', width='11', command = self.quitar_Filtro)
         self.btnQFiltro.grid(column='1', row='0', sticky='n', padx='4', pady='10')
+
+
+        #Checkbox Mostrar Departamento
+        self.chkMostrarDepState = tk.BooleanVar() #Define si en el treeview se muestra [Ciudad]/[Ciudad, Departamento]
+        self.chkMostrarDep = ttk.Checkbutton(
+            self.win, style='main.TCheckbutton', text='Mostrar Departamento',
+            variable = self.chkMostrarDepState, command=self.lee_tablaTreeView)
+        self.chkMostrarDep.place(anchor='ne', rely='0.04', x='1000', y='380')
+
 
         
         
@@ -375,7 +394,7 @@ class Participantes:
             self.treeDatos.delete(linea)
         if self.consultaFiltro is None:
             # Seleccionando los datos de la BD, esta query usa un join para obtener el nombre de la ciudad a partir del código guardado en esta
-            query = '''SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha 
+            query = '''SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha, Nombre_Departamento 
                 FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad 
                 ORDER BY Id'''
             db_rows = self.run_Query(query)
@@ -389,6 +408,9 @@ class Participantes:
             ciudad = row[2]
             if ciudad is None:
                 ciudad = ''
+            elif self.chkMostrarDepState.get():
+                ciudad = row[2] + ', ' + row[7]
+            
             fecha = row[6]
             if fecha is None:
                 fecha = ''
@@ -653,7 +675,10 @@ class Participantes:
         
         def confirmar_Seleccion(event = None):
             if pre_cod_departamento is not None and pre_cod_ciudad is not None:
-                self.entryCiudadText.set(pre_cod_ciudad_text)
+                if self.chkMostrarDepState.get():
+                    self.entryCiudadText.set(pre_cod_ciudad_text + ', ' + pre_cod_departamento_text)
+                else:
+                    self.entryCiudadText.set(pre_cod_ciudad_text)
                 self.sel_ciudad = (pre_cod_departamento, pre_cod_ciudad)
                 ventana.destroy()
     
@@ -915,14 +940,11 @@ class Participantes:
             mssg.showerror('¡ Atención !', 'Se requiere al menos un dato para la consulta')
             return False
 
-        query = ('''SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha
+        query = ('''SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha, Nombre_Departamento
             FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad 
             WHERE ''' + 
             ' AND '.join(condiciones) + 
             ' ORDER BY Id ')
-        print(condiciones)
-        print(parametros)
-        print(query)
         self.consultaFiltro = (query, parametros)
         self.lee_tablaTreeView()
 
