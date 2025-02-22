@@ -942,7 +942,10 @@ class Participantes:
             #Si el valor seleccionado es una cadena vacia no lo agregamos a la lista de condiciones y parametros
             if row[1] != '':
                 condiciones.append(row[0] + ' LIKE ?')
-                parametros.append('%' + row[1] + '%')
+                if row[0] in ('t_participantes.Id_Ciudad', 'Fecha'):
+                    parametros.append(row[1])
+                else:
+                    parametros.append('%' + row[1] + '%')
 
         # Si todo está vacio
         if len(parametros) == 0:
