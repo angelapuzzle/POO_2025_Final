@@ -523,23 +523,33 @@ class Participantes:
         
         #Frame para departamentos
         frmDepartamentos = tk.Frame(ventana, background=self.color_palette['window_secondary'])
-        frmDepartamentos.pack(side='left', fill='y', padx=5, pady=5)
+        frmDepartamentos.pack(side='left', fill='both', expand=True, padx=5, pady=5)
+
+	# Scrollbar para departamentos
+        scrollDep = ttk.Scrollbar(frmDepartamentos, orient='vertical')
+        scrollDep.pack(side='right', fill='y')
 
         lblDepartamentos = ttk.Label(frmDepartamentos, style='second.TLabel')
         lblDepartamentos.configure(text='Departamentos')
         lblDepartamentos.pack()
-        listboxDepartamentos = tk.Listbox(frmDepartamentos, width=25, background=self.color_palette['entry'])
-        listboxDepartamentos.pack(fill='y', expand=True)
+        listboxDepartamentos = tk.Listbox(frmDepartamentos, width=25, background=self.color_palette['entry'], yscrollcommand=scrollDep.set)
+        listboxDepartamentos.pack(fill='both', expand=True)
+        scrollDep.config(command=listboxDepartamentos.yview)
 
         # Frame para ciudades
         frmCiudades = tk.Frame(ventana, background=self.color_palette['window_secondary'])
         frmCiudades.pack(side='right', fill='both', expand=True, padx=5, pady=5)
+
+	# Scorllbar para ciudades
+        scrollCiu= ttk.Scrollbar(frmCiudades, orient='vertical')
+        scrollCiu.pack(side='right',fill='y')
     
         lblCiudades = ttk.Label(frmCiudades, style='second.TLabel')
         lblCiudades.configure(text='Ciudades')
         lblCiudades.pack()
-        listboxCiudades = tk.Listbox(frmCiudades, background=self.color_palette['entry'])
+        listboxCiudades = tk.Listbox(frmCiudades, background=self.color_palette['entry'], yscrollcommand=scrollCiu.set)
         listboxCiudades.pack(fill='both', expand=True)
+        scrollCiu.config(command=listboxCiudades.yview)
 
         # Botón Cancelar
         btnCancelar = ttk.Button(ventana, text='Cancelar', style='main.TButton')
