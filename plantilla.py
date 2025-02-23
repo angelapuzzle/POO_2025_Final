@@ -22,7 +22,8 @@ class Participantes:
     # nombre de la base de datos y ruta 
     path = r'Resources'
     db_name = path + r'/Participantes.db'
-    program_icon = path + r'/ico_registro_1.png'
+    # Icono sacado de https://icons8.com/icon/P867rKU9KkdM/elephant
+    program_icon = path + r'/ico_registro.png'
     actualiza = None
     consultaFiltro = None #si hay una consulta activa, esto será [(query), (parametros)]
 
@@ -37,7 +38,7 @@ class Participantes:
         'click_button': '#78a1f5',
         'window_secondary': '#dee6ef',
         'entry': '#faf8fc',
-        'ronly_entry': '#efedf0',
+        'ronly_entry': '#e4e2e5',
         'tabla_encabezado': 'lightgray',
         'tabla_fondo': '#E6E9EF',
         'scroll_primary_a': '#a0a0a0',
@@ -108,17 +109,26 @@ class Participantes:
             font='TkTextFont',
             justify='left'
         )
+
         self.style.configure(
             'lblfrm_Datos.TButton',
             background=self.color_palette['window_secondary'],
             padding=(2, 0) 
         )
 
+        self.style.configure(
+            'lblfrm_Datos.TEntry',
+            background=self.color_palette['entry'],
+            #readonlybackground=self.color_palette['ronly_entry'],
+            justify='left',
+            relief='groove'
+        )
+
         #Estilos TreeView
         self.style.configure(
             'main.Treeview',
-            highlightthickness=0,
-            bd=0,
+            #highlightthickness=0,
+            #borderwidth=0,
             background=self.color_palette['tabla_fondo'],
             font=('Calibri Light',10)
         )
@@ -127,12 +137,7 @@ class Participantes:
             relief='flat',
             padding=0,
             background=self.color_palette['tabla_encabezado'],
-            font=('Calibri Light', 10,'bold')
-        
-        )
-        self.style.layout(
-            'main.Treeview',
-            [('main.Treeview.treearea', {'sticky': 'nswe'})]
+            font=('Calibri Light', 10, 'bold')
         )
 
         # Esto cambiará la scrollbar por defecto, no es recomendable pero estamos forzado a hacerlo
@@ -148,17 +153,6 @@ class Participantes:
             #El orden afecta la prioridad
             background=[('disabled', self.color_palette['scroll_secondary']), ('active', self.color_palette['scroll_primary_a'])],
         )
-
-        # Como el Entry de ttk se ve raro, y el de tk no tiene la opción de usar estilos,
-        # esto permite configurar los entry con las mismas opciones siempre
-        config_entry_Datos = {
-            'background': self.color_palette['entry'],
-            'readonlybackground': self.color_palette['ronly_entry'],
-            'exportselection': 'false',
-            'justify': 'left',
-            'relief': 'groove',
-            'takefocus': True
-        }
 
         
         #Label Frame
@@ -181,8 +175,8 @@ class Participantes:
         #Entry Id
         self.entryIdText = tk.StringVar()
         self.entryIdText.trace_add('write', self.valida_Campo_Identificacion)
-        self.entryId = tk.Entry(self.lblfrm_Datos, textvariable=self.entryIdText)
-        self.entryId.configure(config_entry_Datos)
+        self.entryId = ttk.Entry(self.lblfrm_Datos, textvariable=self.entryIdText)
+        self.entryId.configure(takefocus=True)
         self.entryId.configure(width=30)
         self.entryId.grid(column='1', row='0', sticky='w')
         
@@ -195,8 +189,8 @@ class Participantes:
         #Entry Nombre
         self.entryNombreText = tk.StringVar()
         self.entryNombreText.trace_add('write', self.valida_Campo_Nombre)
-        self.entryNombre = tk.Entry(self.lblfrm_Datos, textvariable=self.entryNombreText)
-        self.entryNombre.configure(config_entry_Datos)
+        self.entryNombre = ttk.Entry(self.lblfrm_Datos, textvariable=self.entryNombreText)
+        self.entryNombre.configure(takefocus=True)
         self.entryNombre.configure(width=30)
         self.entryNombre.grid(column='1', row='1', sticky='w')
         
@@ -213,8 +207,9 @@ class Participantes:
         #Entry Ciudad
         self.entryCiudadText = tk.StringVar()
         self.entryCiudadText.set('[Seleccionar]')
-        self.entryCiudad = tk.Entry(self.frmCiudad, textvariable=self.entryCiudadText)
-        self.entryCiudad.configure(width=25, state='readonly', readonlybackground=self.color_palette['entry']) # Aunque simulemos que está habilitado, en realidad no lo está
+        self.entryCiudad = ttk.Entry(self.frmCiudad, textvariable=self.entryCiudadText)
+        #readonlybackground=self.color_palette['entry']
+        self.entryCiudad.configure(width=25, state='readonly', takefocus=False) # Aunque simulemos que está habilitado, en realidad no lo está
         self.entryCiudad.grid(column='0', row='0', sticky='w')
 
         # Botón de selección Ciudad
@@ -231,8 +226,8 @@ class Participantes:
         #Entry Direccion
         self.entryDireccionText = tk.StringVar()
         self.entryDireccionText.trace_add('write', self.valida_Campo_Direccion)
-        self.entryDireccion = tk.Entry(self.lblfrm_Datos, textvariable=self.entryDireccionText)
-        self.entryDireccion.configure(config_entry_Datos)
+        self.entryDireccion = ttk.Entry(self.lblfrm_Datos, textvariable=self.entryDireccionText)
+        self.entryDireccion.configure(takefocus=True)
         self.entryDireccion.configure(width=30)
         self.entryDireccion.grid(column='1', row='3', sticky='w')
         
@@ -245,8 +240,8 @@ class Participantes:
         #Entry Celular
         self.entryCelularText = tk.StringVar()
         self.entryCelularText.trace_add('write', self.valida_Campo_Celular)
-        self.entryCelular = tk.Entry(self.lblfrm_Datos, textvariable=self.entryCelularText)
-        self.entryCelular.configure(config_entry_Datos)
+        self.entryCelular = ttk.Entry(self.lblfrm_Datos, textvariable=self.entryCelularText)
+        self.entryCelular.configure(takefocus=True)
         self.entryCelular.configure(width=30)
         self.entryCelular.grid(column='1', row='4', sticky='w')
         
@@ -259,8 +254,8 @@ class Participantes:
         #Entry Entidad
         self.entryEntidadText = tk.StringVar()
         self.entryEntidadText.trace_add('write', self.valida_Campo_Entidad)
-        self.entryEntidad = tk.Entry(self.lblfrm_Datos, textvariable=self.entryEntidadText)
-        self.entryEntidad.configure(config_entry_Datos)
+        self.entryEntidad = ttk.Entry(self.lblfrm_Datos, textvariable=self.entryEntidadText)
+        self.entryEntidad.configure(takefocus=True)
         self.entryEntidad.configure(width=30)
         self.entryEntidad.grid(column='1', row='5', sticky='w')
         
@@ -277,9 +272,9 @@ class Participantes:
         #Entry Fecha
         self.entryFechaText = tk.StringVar()
         self.entryFechaText.set('[Seleccionar]')
-        self.entryFecha = tk.Entry(self.frmFecha, textvariable=self.entryFechaText)
-        self.entryFecha.configure(config_entry_Datos)
-        self.entryFecha.configure(width=25)
+        self.entryFecha = ttk.Entry(self.frmFecha, textvariable=self.entryFechaText)
+        self.entryFecha.configure(takefocus=True)
+        self.entryFecha.configure(width=25, takefocus=False)
         self.entryFecha.grid(column='0', row='0', sticky='w')
 
         # Botón de selección Fecha
@@ -585,7 +580,7 @@ class Participantes:
             pre_cod_departamento_text = departamento
             pre_cod_ciudad_text = ciudad
 
-            lblSeleccion.configure(text='Ciudad seleccionada: ' + ciudad + ', ' + departamento)
+            lblSeleccion.configure(text=f'Ciudad seleccionada: {ciudad}, {departamento}')
         else:
             cargar_Lista_Departamentos()
             
@@ -625,12 +620,12 @@ class Participantes:
                 pre_cod_ciudad_text = ciudad
 
                 btnSeleccionar.configure(state='normal')
-                lblSeleccion.configure(text='Ciudad seleccionada: ' + pre_cod_ciudad_text + ', ' + pre_cod_departamento_text)
+                lblSeleccion.configure(text=f'Ciudad seleccionada: {pre_cod_ciudad_text},  {pre_cod_departamento_text}')
         
         def confirmar_Seleccion(event = None):
             if pre_cod_departamento is not None and pre_cod_ciudad is not None:
                 if self.chkMostrarDepState.get():
-                    self.entryCiudadText.set(pre_cod_ciudad_text + ', ' + pre_cod_departamento_text)
+                    self.entryCiudadText.set(f'{pre_cod_ciudad_text}, {pre_cod_departamento_text}')
                 else:
                     self.entryCiudadText.set(pre_cod_ciudad_text)
                 self.sel_ciudad = (pre_cod_departamento, pre_cod_ciudad, pre_cod_ciudad_text)
@@ -720,7 +715,7 @@ class Participantes:
             num_dias_mes = num_Dias_Mes(sel_anio, sel_mes)
             
             comboAnio['values'] = tuple(range(1900, 2100 + 1)) #tupla del 1900 al 2100
-            comboMes['values'] = ('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre')
+            comboMes['values'] = ('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre')
             comboDia['values'] = tuple(range(1, num_dias_mes + 1)) #tupla desde al 1 hasta el último dia del mes
 
         # Inicializar en el día actual/seleccionado (el index será el número correspondiente menos el primer número posible)
@@ -747,12 +742,13 @@ class Participantes:
             comboAnio.selection_clear()
 
         def confirmar_Seleccion():
-            if date(sel_anio, sel_mes, sel_dia) > current_date:
+            dateselected = date(sel_anio, sel_mes, sel_dia)
+            if dateselected > current_date:
                 mssg.showerror('¡ Atención !', 'No se puede seleccionar una fecha posterior a hoy')
-            elif date(sel_anio, sel_mes, sel_dia) < date(current_year, 1, 1):
+            elif dateselected < date(current_year, 1, 1):
                 mssg.showerror('¡ Atención !', f'No se puede seleccionar una fecha antes de {current_year}')
             else:
-                self.sel_fecha = date(sel_anio, sel_mes, sel_dia)
+                self.sel_fecha = dateselected
                 self.entryFechaText.set(self.sel_fecha.strftime('%d/%m/%Y'))
                 ventana.destroy()
 
