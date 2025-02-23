@@ -22,7 +22,8 @@ class Participantes:
     # nombre de la base de datos y ruta 
     path = r'Resources'
     db_name = path + r'/Participantes.db'
-    program_icon = path + r'/ico_registro_1.png'
+    # Icono sacado de https://icons8.com/icon/P867rKU9KkdM/elephant
+    program_icon = path + r'/ico_registro.png'
     actualiza = None
     consultaFiltro = None #si hay una consulta activa, esto será [(query), (parametros)]
 
