@@ -26,6 +26,9 @@ class Participantes:
     actualiza = None
     consultaFiltro = None #si hay una consulta activa, esto será [(query), (parametros)]
 
+    # Variables usadas para guardar información digitada por el usuario
+    sel_ciudad = None #si hay una ciudad, esto será una tupla (id_departamento, id_ciudad, text_ciudad)
+    sel_fecha = None #si hay una fecha seleccionada esto será un objeto date
     
     color_palette = {
         'window_bg': '#8394af',
@@ -42,15 +45,10 @@ class Participantes:
         'scroll_secondary': '#faf4ed'
     }
 
-    # Variables usadas para guardar información digitada por el usuario
-    sel_ciudad = None #si hay una ciudad, esto será una tupla (id_departamento, id_ciudad, text_ciudad)
-    sel_fecha = None #si hay una fecha seleccionada esto será un objeto date
-
     def __init__(self, master=None):
         # Top Level - Ventana Principal
         self.win = tk.Tk() if master is None else tk.Toplevel()
         
-             
         #Top Level - Configuración
         self.win.configure(background=self.color_palette['window_bg'], relief='flat')
         self.centrar_Ventana(self.win, 1024, 480)
@@ -60,17 +58,11 @@ class Participantes:
         self.win.title('Conferencia MACSS y la Ingeniería de Requerimientos')
         self.win.pack_propagate(0) 
 
-       
-
-
+        #Configuracion estilos ventana principal y subventanas
         self.style = ttk.Style()
-
         self.style.theme_use('clam')
-
         
-        # Detalles sobre los map:
-        # active es cuando el mouse está encima del cursor
-
+        #Estilos ventana principal
         self.style.configure(
             'main.TButton',
             background=self.color_palette['normal_button'],
@@ -91,7 +83,7 @@ class Participantes:
             background=[('active', self.color_palette['window_bg'])]
         )
 
-
+        #Estilos subventanas
         self.style.configure(
             'second.TLabel',
             background=self.color_palette['window_secondary'],
@@ -101,7 +93,6 @@ class Participantes:
             'second.TCombobox',
             background=self.color_palette['window_secondary'],
         )
-
         self.style.map(
             'second.TCombobox',
             fieldbackground=[('disabled', self.color_palette['entry'])],
@@ -109,6 +100,7 @@ class Participantes:
             foreground=[('selected', '#000000')]
         )
 
+        #Estilos lblfrm_Datos
         self.style.configure(
             'lblfrm_Datos.TLabel',
             background=self.color_palette['window_secondary'],
@@ -122,6 +114,7 @@ class Participantes:
             padding=(2, 0) 
         )
 
+        #Estilos TreeView
         self.style.configure(
             'main.Treeview',
             highlightthickness=0,
@@ -129,7 +122,6 @@ class Participantes:
             background=self.color_palette['tabla_fondo'],
             font=('Calibri Light',10)
         )
-        
         self.style.configure(
             'main.Treeview.Heading',
             relief='flat',
@@ -138,12 +130,10 @@ class Participantes:
             font=('Calibri Light', 10,'bold')
         
         )
-
         self.style.layout(
             'main.Treeview',
             [('main.Treeview.treearea', {'sticky': 'nswe'})]
         )
-
 
         # Esto cambiará la scrollbar por defecto, no es recomendable pero estamos forzado a hacerlo
         # puesto que no se puede cambiar el estilo del scrollbar del combobox mediante python
@@ -154,14 +144,13 @@ class Participantes:
             background=self.color_palette['scroll_primary_i'], #color de la barrita en realidad
             gripcount=0,
         )
-
         self.style.map('Vertical.TScrollbar',
             #El orden afecta la prioridad
             background=[('disabled', self.color_palette['scroll_secondary']), ('active', self.color_palette['scroll_primary_a'])],
         )
 
         # Como el Entry de ttk se ve raro, y el de tk no tiene la opción de usar estilos,
-        # esto permite configurar los entry con las mismas opciones siempte
+        # esto permite configurar los entry con las mismas opciones siempre
         config_entry_Datos = {
             'background': self.color_palette['entry'],
             'readonlybackground': self.color_palette['ronly_entry'],
@@ -180,6 +169,7 @@ class Participantes:
         self.lblfrm_Datos.grid_propagate(0)
         for i in range(7):
             self.lblfrm_Datos.rowconfigure(i, weight = 1)
+        
 
         #Label Id
         self.lblId = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
@@ -202,7 +192,6 @@ class Participantes:
         self.lblNombre.configure(text='Nombre', width='12')
         self.lblNombre.grid(column='0', padx='5', row='1', sticky='w')
         
-        
         #Entry Nombre
         self.entryNombreText = tk.StringVar()
         self.entryNombreText.trace_add('write', self.valida_Campo_Nombre)
@@ -211,6 +200,7 @@ class Participantes:
         self.entryNombre.configure(width=30)
         self.entryNombre.grid(column='1', row='1', sticky='w')
         
+
         #Label Ciudad
         self.lblCiudad = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblCiudad.configure(text='Ciudad', width='12')
@@ -227,11 +217,12 @@ class Participantes:
         self.entryCiudad.configure(width=25, state='readonly', readonlybackground=self.color_palette['entry']) # Aunque simulemos que está habilitado, en realidad no lo está
         self.entryCiudad.grid(column='0', row='0', sticky='w')
 
-        # Botón de selección
+        # Botón de selección Ciudad
         self.btnSeleccionarCiudad = ttk.Button(self.frmCiudad, style='lblfrm_Datos.TButton')
         self.btnSeleccionarCiudad.configure(text='...', width=2, command=self.crear_Selector_Ciudad)
         self.btnSeleccionarCiudad.grid(column='1', row='0', padx=5)
         
+
         #Label Direccion
         self.lblDireccion = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblDireccion.configure(text='Dirección', width='12')
@@ -245,6 +236,7 @@ class Participantes:
         self.entryDireccion.configure(width=30)
         self.entryDireccion.grid(column='1', row='3', sticky='w')
         
+
         #Label Celular
         self.lblCelular = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblCelular.configure(text='Celular', width='12')
@@ -258,6 +250,7 @@ class Participantes:
         self.entryCelular.configure(width=30)
         self.entryCelular.grid(column='1', row='4', sticky='w')
         
+
         #Label Entidad
         self.lblEntidad = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblEntidad.configure(text='Entidad', width='12')
@@ -271,6 +264,7 @@ class Participantes:
         self.entryEntidad.configure(width=30)
         self.entryEntidad.grid(column='1', row='5', sticky='w')
         
+
         #Label Fecha
         self.lblFecha = ttk.Label(self.lblfrm_Datos, style='lblfrm_Datos.TLabel')
         self.lblFecha.configure(text='Fecha', width='12')
@@ -288,12 +282,13 @@ class Participantes:
         self.entryFecha.configure(width=25)
         self.entryFecha.grid(column='0', row='0', sticky='w')
 
-        # Botón de selección
+        # Botón de selección Fecha
         self.btnSeleccionarCiudad = ttk.Button(self.frmFecha, style='lblfrm_Datos.TButton')
         self.btnSeleccionarCiudad.configure(text='...', width=2, command=self.crear_Selector_Fecha)
         self.btnSeleccionarCiudad.grid(column='1', row='0', padx=5)
         
-        #Frame Botones (background coincide con la ventana)
+
+        #Frame Botones
         self.frmBotones = tk.Frame(self.win, background=self.color_palette['window_bg'])
         self.frmBotones.place(anchor='nw', relx='0.005', rely='0.82', x='0', y='0')
         
@@ -320,7 +315,7 @@ class Participantes:
 
         #Frame Botones TreeView
         self.frmBotonesTreeDatos = tk.Frame(self.win, background=self.color_palette['window_bg'])
-        self.frmBotonesTreeDatos.place(anchor='nw', rely='0.04', width='700', x='300', y='370')
+        self.frmBotonesTreeDatos.place(anchor='nw', rely='0.04', x='500', y='370')
 
         #Botón Consultar
         self.btnConsultar = ttk.Button(self.frmBotonesTreeDatos, style='main.TButton')
@@ -344,10 +339,8 @@ class Participantes:
             variable = self.chkMostrarDepState, command=self.lee_tablaTreeView)
         self.chkMostrarDep.place(anchor='ne', rely='0.04', x='1000', y='380')
 
-
         
-        
-        #tablaTreeView
+        #TreeView tabla de datos
         self.treeDatos = ttk.Treeview(self.win, style='main.Treeview')
         self.treeDatos.place(anchor='nw', rely='0.04', width='700', height='370', x='300')
 
@@ -375,9 +368,6 @@ class Participantes:
         self.lee_tablaTreeView()
 
 
-    def run(self):
-        self.win.mainloop()
-
     def run_Query(self, query, parametros = ()):
         ''' Función para ejecutar los Querys a la base de datos ''' #Query es una indicación que le digo a sql
         with sqlite3.connect(self.db_name) as conn:
@@ -385,6 +375,27 @@ class Participantes:
             result = cursor.execute(query, parametros)
             conn.commit()
         return result
+
+    def centrar_Ventana(self, ventana, ancho_Ventana, altura_Ventana):
+        #  Obtenemos el largo y ancho de la pantalla
+        wtotal = ventana.winfo_screenwidth()
+        htotal = ventana.winfo_screenheight()
+
+        #  Aplicamos la siguiente formula para calcular donde debería posicionarse
+        pwidth = round(wtotal/2-ancho_Ventana/2)
+        pheight = round(htotal/2-altura_Ventana/2)
+
+        #  Se lo aplicamos a la geometría de la ventana
+        ventana.geometry(f'{ancho_Ventana}x{altura_Ventana}+{pwidth}+{pheight}')
+
+    def set_Ancho_TreeView(self):
+        self.treeDatos.column('#0',         stretch='true',             width=93)
+        self.treeDatos.column('Nombre',     stretch='true',             width=91)
+        self.treeDatos.column('Ciudad',     stretch='true',             width=115)
+        self.treeDatos.column('Dirección',  stretch='true',             width=114)
+        self.treeDatos.column('Celular',    stretch='true',             width=83)
+        self.treeDatos.column('Entidad',    stretch='true',             width=126)
+        self.treeDatos.column('Fecha',      stretch='true',             width=78)
 
     def lee_tablaTreeView(self):
         ''' Carga los datos de la BD y Limpia la Tabla tablaTreeView '''
@@ -420,9 +431,7 @@ class Participantes:
                 except ValueError:
                     # Si hay una fecha invalida pone el texto como 'Invalida'
                     fecha = 'Invalida'
-            self.treeDatos.insert('','end', text = row[0], values = [row[1],ciudad,row[3],row[4],row[5],fecha])
-
-            
+            self.treeDatos.insert('','end', text = row[0], values = [row[1],ciudad,row[3],row[4],row[5],fecha])           
 
     def valida_Campo_Identificacion(self, var, index, mode):
         text = self.entryIdText.get()
@@ -470,59 +479,6 @@ class Participantes:
 
         self.entryEntidadText.set(filtered_text)
 
-    
-    '''Función utilizada para el boón editar, trae desde el treeview el participante seleccionado
-        y lo carga en los entry '''
-    def carga_Datos(self): 
-        ''' Carga los datos en los campos desde el treeView'''
-        #   Nuevo
-        self.entryIdText.set(self.treeDatos.item(self.treeDatos.selection())['text']) #Aca, todo lo que habia se reemplaza por el texto nuevom si coloco insert, se acumulan
-        self.entryId.configure(state = 'readonly')#Deja id bloqueado para que no lo puedan editar
-        #Carga los demás entries (para ciudad esto es meramente el texto mostrado)
-        self.entryNombreText.set(self.treeDatos.item(self.treeDatos.selection())['values'][0])
-        self.entryCiudadText.set(self.treeDatos.item(self.treeDatos.selection())['values'][1])
-        self.entryDireccionText.set(self.treeDatos.item(self.treeDatos.selection())['values'][2])
-        self.entryCelularText.set(self.treeDatos.item(self.treeDatos.selection())['values'][3])
-        self.entryEntidadText.set(self.treeDatos.item(self.treeDatos.selection())['values'][4])
-
-        # Carga los códigos del departamento y de la ciudad
-        query = 'SELECT Id_Departamento, Id_Ciudad, Ciudad FROM t_participantes WHERE Id = ?'
-        parametros = (self.treeDatos.item(self.treeDatos.selection())['text'],)
-        self.sel_ciudad = tuple(self.run_Query(query, parametros).fetchone())
-        if self.sel_ciudad[1] is None:
-            self.sel_ciudad = None
-
-        # Si la ciudad no está definida, dejar el campo "vacio"
-        if self.sel_ciudad is None:
-            self.entryCiudadText.set('[Seleccionar]')
-
-        # Carga la fecha si no está vacia
-        text_fecha = self.treeDatos.item(self.treeDatos.selection())['values'][5]
-        try:
-            # Si hay una fecha valida, la guarda en self.fecha y pone el texto del entry en la fecha correspondiente (recordar que en el treeview ya está en DD/MM/AAAA)
-            self.sel_fecha = datetime.strptime(text_fecha, '%d/%m/%Y').date()
-            self.entryFechaText.set(text_fecha)
-        except ValueError:
-            # Sino, pone el campo "vacio"
-            self.fecha = None
-            self.entryFechaText.set('[Seleccionar]')
-
-        
-
-    def limpia_Campos(self):
-        # Limpia todas las entradas
-        self.entryId.configure(state='normal')  # Aseguramos que se pueda editar antes de limpiar
-        self.entryIdText.set('')
-        self.entryNombreText.set('')
-        self.entryCiudadText.set('[Seleccionar]')
-        self.entryDireccionText.set('')
-        self.entryCelularText.set('')
-        self.entryEntidadText.set('')
-        self.entryFechaText.set('[Seleccionar]')
-        self.sel_ciudad = None
-        self.sel_fecha = None
-    
-        
     def crear_Selector_Ciudad(self):
         pre_cod_departamento = None
         pre_cod_departamento_text = None
@@ -621,7 +577,6 @@ class Participantes:
             departamento = self.run_Query(query, parametros).fetchone()[0]
             cargar_Lista_Departamentos(departamento)
 
-
             query = 'SELECT Nombre_Ciudad FROM t_ciudades WHERE Id_Ciudad = ?'
             parametros = (self.sel_ciudad[1], )
             ciudad = self.run_Query(query, parametros).fetchone()[0]
@@ -687,7 +642,6 @@ class Participantes:
 
         btnCancelar.configure(command=ventana.destroy)
         btnSeleccionar.configure(command=confirmar_Seleccion)
-
 
     def crear_Selector_Fecha(self):
         def num_Dias_Mes(anio, mes):
@@ -809,6 +763,53 @@ class Participantes:
         btnSeleccionar.configure(command=confirmar_Seleccion)
         btnCancelar.configure(command=ventana.destroy)
 
+    def carga_Datos(self): 
+        ''' Carga los datos en los campos desde el treeView'''
+        #   Nuevo
+        self.entryIdText.set(self.treeDatos.item(self.treeDatos.selection())['text']) #Aca, todo lo que habia se reemplaza por el texto nuevom si coloco insert, se acumulan
+        self.entryId.configure(state = 'readonly')#Deja id bloqueado para que no lo puedan editar
+        #Carga los demás entries (para ciudad esto es meramente el texto mostrado)
+        self.entryNombreText.set(self.treeDatos.item(self.treeDatos.selection())['values'][0])
+        self.entryCiudadText.set(self.treeDatos.item(self.treeDatos.selection())['values'][1])
+        self.entryDireccionText.set(self.treeDatos.item(self.treeDatos.selection())['values'][2])
+        self.entryCelularText.set(self.treeDatos.item(self.treeDatos.selection())['values'][3])
+        self.entryEntidadText.set(self.treeDatos.item(self.treeDatos.selection())['values'][4])
+
+        # Carga los códigos del departamento y de la ciudad
+        query = 'SELECT Id_Departamento, Id_Ciudad, Ciudad FROM t_participantes WHERE Id = ?'
+        parametros = (self.treeDatos.item(self.treeDatos.selection())['text'],)
+        self.sel_ciudad = tuple(self.run_Query(query, parametros).fetchone())
+        if self.sel_ciudad[1] is None:
+            self.sel_ciudad = None
+
+        # Si la ciudad no está definida, dejar el campo "vacio"
+        if self.sel_ciudad is None:
+            self.entryCiudadText.set('[Seleccionar]')
+
+        # Carga la fecha si no está vacia
+        text_fecha = self.treeDatos.item(self.treeDatos.selection())['values'][5]
+        try:
+            # Si hay una fecha valida, la guarda en self.fecha y pone el texto del entry en la fecha correspondiente (recordar que en el treeview ya está en DD/MM/AAAA)
+            self.sel_fecha = datetime.strptime(text_fecha, '%d/%m/%Y').date()
+            self.entryFechaText.set(text_fecha)
+        except ValueError:
+            # Sino, pone el campo "vacio"
+            self.fecha = None
+            self.entryFechaText.set('[Seleccionar]')
+
+    def limpia_Campos(self):
+        # Limpia todas las entradas
+        self.entryId.configure(state='normal')  # Aseguramos que se pueda editar antes de limpiar
+        self.entryIdText.set('')
+        self.entryNombreText.set('')
+        self.entryCiudadText.set('[Seleccionar]')
+        self.entryDireccionText.set('')
+        self.entryCelularText.set('')
+        self.entryEntidadText.set('')
+        self.entryFechaText.set('[Seleccionar]')
+        self.sel_ciudad = None
+        self.sel_fecha = None
+
     def valida_Grabar(self):
         '''Valida que el Id y la fecha no estén vacios, si el Id está vacio devuelve False,
         si la fecha está vacía muestra un mensaje y la pone por defecto como el día actual
@@ -840,7 +841,6 @@ class Participantes:
             self.sel_fecha = date.today()
         return True
         
-
     def adiciona_Registro(self):
         '''Adiciona un registro a la BD si la validación es True'''
         '''También guarda el nombre de la ciudad en el campo Ciudad para cumplir un requerimiento,
@@ -908,18 +908,6 @@ class Participantes:
             mssg.showinfo('Eliminado', 'Los registros seleccionados fueron eliminados')
             self.lee_tablaTreeView() #Carga la tabla al treeview actualizada
     
-    def centrar_Ventana(self, ventana, ancho_Ventana, altura_Ventana):
-        #  Obtenemos el largo y  ancho de la pantalla
-        wtotal = ventana.winfo_screenwidth()
-        htotal = ventana.winfo_screenheight()
-
-        #  Aplicamos la siguiente formula para calcular donde debería posicionarse
-        pwidth = round(wtotal/2-ancho_Ventana/2)
-        pheight = round(htotal/2-altura_Ventana/2)
-
-        #  Se lo aplicamos a la geometría de la ventana
-        ventana.geometry(str(ancho_Ventana)+"x"+str(altura_Ventana)+"+"+str(pwidth)+"+"+str(pheight))
-
     def consulta(self): 
         condiciones = []
         parametros = []
@@ -945,7 +933,7 @@ class Participantes:
                 if row[0] in ('t_participantes.Id_Ciudad', 'Fecha'):
                     parametros.append(row[1])
                 else:
-                    parametros.append('%' + row[1] + '%')
+                    parametros.append(row[1] + '%')
 
         # Si todo está vacio
         if len(parametros) == 0:
@@ -965,8 +953,6 @@ class Participantes:
         self.consultaFiltro = (query, parametros)
         self.lee_tablaTreeView()
 
-
-
     def quitar_Filtro(self):
         if self.consultaFiltro is None:
             mssg.showinfo('', 'No hay ningun filtro activo')
@@ -974,15 +960,8 @@ class Participantes:
             self.consultaFiltro = None
             self.lee_tablaTreeView()
 
-    def set_Ancho_TreeView(self):
-        self.treeDatos.column('#0',         stretch='true',             width=93)
-        self.treeDatos.column('Nombre',     stretch='true',             width=91)
-        self.treeDatos.column('Ciudad',     stretch='true',             width=115)
-        self.treeDatos.column('Dirección',  stretch='true',             width=114)
-        self.treeDatos.column('Celular',    stretch='true',             width=83)
-        self.treeDatos.column('Entidad',    stretch='true',             width=126)
-        self.treeDatos.column('Fecha',      stretch='true',             width=78)
-
+    def run(self):
+        self.win.mainloop()
 
 if __name__ == '__main__':
     app = Participantes()
