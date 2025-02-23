@@ -304,7 +304,7 @@ class Participantes:
         
         #Botón Eliminar
         self.btnEliminar = ttk.Button(self.frmBotones, style='main.TButton')
-        self.btnEliminar.configure(text='Eliminar', width='9', command=self.elimina_Registro)
+        self.btnEliminar.configure(text='Eliminar', width='9', command=self.option_Eliminar)
         self.btnEliminar.grid(column='2', row='0', sticky='n', padx='4', pady='4')
         
         #Botón Cancelar
@@ -892,22 +892,74 @@ class Participantes:
             self.actualiza = True # Esta variable controla la actualización
             self.carga_Datos()
             mssg.showinfo('', f'Datos del ID: {self.entryIdText.get()} cargados correctamente')
-        
-    def elimina_Registro(self):
-        if not self.treeDatos.selection(): #Verifica si la selección de la tabla esta vacía, osea, no ha seleccionado nada
-            mssg.showerror('¡ Atención !', 'Por favor seleccione los items a eliminar de la tabla')
-            return
-        
-        confirmation_msg = mssg.askyesno('', '¿Desea borrar los datos seleccionados?')
-        if confirmation_msg == True:
-            query = ('DELETE FROM t_participantes WHERE Id = ?')
-            for param in self.treeDatos.selection(): #Bucle para que pueda borrar cada selección
-                parametros = (self.treeDatos.item(param)['text'], ) #Una selección que hace el usuario
-                self.run_Query(query, parametros)
-            
-            mssg.showinfo('Eliminado', 'Los registros seleccionados fueron eliminados')
-            self.lee_tablaTreeView() #Carga la tabla al treeview actualizada
+
+    def option_Eliminar(self):
+
+        ventana = tk.Toplevel(self.win, background=self.color_palette['tabla_fondo'])
+        ventana.title('Tipo de Eliminación')
+        ventana.iconphoto(True, self.icono_photo)
+        self.centrar_Ventana(ventana, 320, 155)
+        ventana.resizable(False, False)
+        ventana.transient(self.win) #Indica que la ventana se muestra sobre la principal
+        ventana.grab_set() #Evita que se interactue con la ventana principal hasta cerrar esta
+
+        lblSeleccion = ttk.Label(ventana, style='second.TLabel')
+        lblSeleccion.configure(anchor='center', text='''  ¿Desea eliminar por selección de registros o
+        eliminar todos los registros de la tabla?  ''', justify = 'center')
+        lblSeleccion.pack(side='top', fill='x', padx=5, pady=5)
+
+        frmBotones = tk.Frame(ventana, background=self.color_palette['tabla_fondo'])
+        frmBotones.pack(anchor = 'n', padx = 5, pady = 10)
+
+        btnElimina_Selec = ttk.Button(frmBotones, text='Por selección de registros', style='main.TButton')
+        btnElimina_Selec.grid(row = 0, column = 0, sticky = 'w', padx = 5, pady = 10)
+
+        btnElimina_T = ttk.Button(frmBotones, text='Todos los registros', style='main.TButton')
+        btnElimina_T.grid(row = 0, column = 1, sticky = 'e', padx = 5, pady = 10)
+
+        btnCancelar = ttk.Button(frmBotones, text='Cancelar', style='main.TButton')
+        btnCancelar.grid(row = 1, column = 0, columnspan = 2, sticky = 's')
     
+
+        def elimina_Registro():
+            ventana.destroy()
+            if not self.treeDatos.selection(): #Verifica si la selección de la tabla esta vacía, osea, no ha seleccionado nada
+                mssg.showerror('¡ Atención !', 'Por favor seleccione los registros a eliminar de la tabla')
+                return
+            
+            confirmation_msg = mssg.askyesno('', '¿Desea borrar los datos seleccionados?')
+            if confirmation_msg == True:
+                query = ('DELETE FROM t_participantes WHERE Id = ?')
+                for param in self.treeDatos.selection(): #Bucle para que pueda borrar cada selección
+                    parametros = (self.treeDatos.item(param)['text'], ) #Una selección que hace el usuario
+                    self.run_Query(query, parametros)
+                self.lee_tablaTreeView() #Carga la tabla al treeview actualizada
+                mssg.showinfo(' Eliminado ', 'Los registros seleccionados fueron eliminados')
+
+
+        def elimina_Todo():
+            ventana.destroy()
+            confirmation_msg = mssg.askyesno('', '¿Está seguro de que desea borrar todos los registros?')
+            if confirmation_msg == True:
+                if not self.treeDatos.get_children():
+                    ventana.destroy()
+                    mssg.showerror('¡ Atención !', 'Aún no hay ningún registro')
+                else:
+                    query = ('DELETE FROM t_participantes') 
+                    self.run_Query(query)
+                    self.lee_tablaTreeView()
+                    self.quitar_Filtro()
+                    mssg.showinfo(' Eliminado ', 'Todos los registros y el filtro fueron eliminados')
+            
+            else:
+                ventana.destroy()
+                mssg.showinfo('', 'Ningún registro fue eliminado')
+
+        btnElimina_Selec.configure(command = elimina_Registro)
+        btnElimina_T.configure(command = elimina_Todo)
+        btnCancelar.configure(command = ventana.destroy)
+
+
     def consulta(self): 
         condiciones = []
         parametros = []
@@ -955,7 +1007,7 @@ class Participantes:
 
     def quitar_Filtro(self):
         if self.consultaFiltro is None:
-            mssg.showinfo('', 'No hay ningun filtro activo')
+            mssg.showerror('¡ Atención !', 'No hay ningun filtro activo')
         else:
             self.consultaFiltro = None
             self.lee_tablaTreeView()
