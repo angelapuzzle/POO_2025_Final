@@ -720,7 +720,7 @@ class Participantes:
             num_dias_mes = num_Dias_Mes(sel_anio, sel_mes)
             
             comboAnio['values'] = tuple(range(1900, 2100 + 1)) #tupla del 1900 al 2100
-            comboMes['values'] = ('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre')
+            comboMes['values'] = ('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre')
             comboDia['values'] = tuple(range(1, num_dias_mes + 1)) #tupla desde al 1 hasta el último dia del mes
 
         # Inicializar en el día actual/seleccionado (el index será el número correspondiente menos el primer número posible)
