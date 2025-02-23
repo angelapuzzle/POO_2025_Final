@@ -547,9 +547,7 @@ class Participantes:
                 listboxDepartamentos.insert('end', departamento)
             if seleccion_departamento is not None:
                 index_departamento = departamentos.index(seleccion_departamento)
-                listboxDepartamentos.focus_set()
                 listboxDepartamentos.see(index_departamento)
-                listboxDepartamentos.activate(index_departamento)
 
         def cargar_Lista_Ciudades(departamento, seleccion_ciudad = None):
             ciudades = get_Ciudades_Por_Departamento(departamento)
