@@ -891,7 +891,7 @@ class Participantes:
 
     def option_Eliminar(self):
 
-        ventana = tk.Toplevel(self.win, background=self.color_palette['tabla_fondo'])
+        ventana = tk.Toplevel(self.win, background=self.color_palette['window_secondary'])
         ventana.title('Tipo de Eliminación')
         ventana.iconphoto(True, self.icono_photo)
         self.centrar_Ventana(ventana, 320, 155)
@@ -904,7 +904,7 @@ class Participantes:
         eliminar todos los registros de la tabla?  ''', justify = 'center')
         lblSeleccion.pack(side='top', fill='x', padx=5, pady=5)
 
-        frmBotones = tk.Frame(ventana, background=self.color_palette['tabla_fondo'])
+        frmBotones = tk.Frame(ventana, background=self.color_palette['window_secondary'])
         frmBotones.pack(anchor = 'n', padx = 5, pady = 10)
 
         btnElimina_Selec = ttk.Button(frmBotones, text='Por selección de registros', style='main.TButton')
@@ -957,7 +957,7 @@ class Participantes:
 
 
     def consulta(self): 
-        condiciones = []
+        condiciones = ''
         parametros = []
 
         ciudad = self.sel_ciudad[1] if self.sel_ciudad is not None else ''
@@ -977,22 +977,24 @@ class Participantes:
         for row in campos_valores:
             #Si el valor seleccionado es una cadena vacia no lo agregamos a la lista de condiciones y parametros
             if row[1] != '':
-                condiciones.append(row[0] + ' LIKE ?')
+                if len(parametros) == 0:
+                    condiciones += f'{row[0]} LIKE ?'
+                else:
+                    condiciones += f' AND {row[0]} LIKE ?'
+                    
                 if row[0] in ('t_participantes.Id_Ciudad', 'Fecha'):
                     parametros.append(row[1])
                 else:
-                    parametros.append(row[1] + '%')
+                    parametros.append(f'{row[1]}%')
 
         # Si todo está vacio
         if len(parametros) == 0:
             mssg.showerror('¡ Atención !', 'Se requiere al menos un dato para la consulta')
             return False
 
-        query = ('''SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha, Nombre_Departamento
+        query = (f'''SELECT Id, Nombre, Nombre_Ciudad, Direccion, Celular, Entidad, Fecha, Nombre_Departamento
             FROM t_participantes LEFT JOIN t_ciudades ON t_ciudades.Id_Ciudad = t_participantes.Id_Ciudad 
-            WHERE ''' + 
-            ' AND '.join(condiciones) + 
-            ' ORDER BY Id ')
+            WHERE {condiciones} ORDER BY Id ''')
         
         # La query es idéntica a la de lee_tablaTreeView, pero agregando un where donde se concatenan las condiciones, y se le pasan todos los parametros
         # Ejemplo de la seccion nueva del query WHERE Id = ? AND Nombre = ? AND t_participantes.Id_Ciudad = ? ...
