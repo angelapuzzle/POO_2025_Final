@@ -882,7 +882,6 @@ class Participantes:
         elif len(self.treeDatos.selection()) > 1:
             mssg.showerror('¡ Atención !', 'Solo puede seleccionar un ítem a editar')
         else:
-            self.treeDatos.item(self.treeDatos.selection())['text']
             self.actualiza = True # Esta variable controla la actualización
             self.carga_Datos()
             mssg.showinfo('', f'Datos del ID: {self.entryIdText.get()} cargados correctamente')
